@@ -1,0 +1,21 @@
+diff --git a/third_party/blink/renderer/core/frame/navigator.cc b/third_party/blink/renderer/core/frame/navigator.cc
+index 583f05f8dd..0c9e855d22 100644
+--- a/third_party/blink/renderer/core/frame/navigator.cc
++++ b/third_party/blink/renderer/core/frame/navigator.cc
+@@ -98,12 +98,10 @@ bool Navigator::cookieEnabled() const {
+ }
+ 
+ bool Navigator::webdriver() const {
+-  if (RuntimeEnabledFeatures::AutomationControlledEnabled())
+-    return true;
+-
+-  bool automation_enabled = false;
+-  probe::ApplyAutomationOverride(GetExecutionContext(), automation_enabled);
+-  return automation_enabled;
++  // TILION patch #1 — navigator.webdriver is always false, returned natively
++  // from C++. No JS getter/descriptor/toString tell exists for a page to detect,
++  // and it ignores the CDP ApplyAutomationOverride path (which can flip it true).
++  return false;
+ }
+ 
+ String Navigator::GetAcceptLanguages() {

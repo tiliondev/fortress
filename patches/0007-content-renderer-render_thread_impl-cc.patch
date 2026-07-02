@@ -1,0 +1,28 @@
+diff --git a/content/renderer/render_thread_impl.cc b/content/renderer/render_thread_impl.cc
+index dd47470e28..a06a013d89 100644
+--- a/content/renderer/render_thread_impl.cc
++++ b/content/renderer/render_thread_impl.cc
+@@ -17,6 +17,9 @@
+ #include "base/allocator/partition_alloc_support.h"
+ #include "base/at_exit.h"
+ #include "base/command_line.h"
++#include "base/containers/flat_map.h"
++#include "base/i18n/rtl.h"
++#include "base/uxr_config.h"
+ #include "base/debug/crash_logging.h"
+ #include "base/feature_list.h"
+ #include "base/functional/bind.h"
+@@ -848,6 +851,13 @@ void RenderThreadImpl::InitializeWebKit(mojo::BinderMap* binders) {
+       blink::WebImageGenerator::CreateAsSkImageGenerator);
+ }
+ 
++void RenderThreadImpl::SetUxrConfig(
++    const base::flat_map<std::string, std::string>& config) {
++  // Persona config arrives here over IPC (not the command line), so it never
++  // appears in /proc/<renderer>/cmdline. Stored once in the process-global.
++  base::UxrConfig::GetInstance().SetAll(config);
++}
++
+ void RenderThreadImpl::InitializeRenderer(
+     const std::string& user_agent,
+     const blink::UserAgentMetadata& user_agent_metadata,

@@ -1,0 +1,47 @@
+diff --git a/third_party/blink/renderer/core/frame/navigator_language.cc b/third_party/blink/renderer/core/frame/navigator_language.cc
+index 75cd346131..376dece63a 100644
+--- a/third_party/blink/renderer/core/frame/navigator_language.cc
++++ b/third_party/blink/renderer/core/frame/navigator_language.cc
+@@ -5,6 +5,11 @@
+ #include "third_party/blink/renderer/core/frame/navigator_language.h"
+ 
+ #include "base/command_line.h"
++#include "third_party/blink/renderer/core/execution_context/execution_context.h"
++#include "v8/include/v8-isolate.h"
++#include "base/i18n/rtl.h"
++#include "third_party/blink/renderer/platform/wtf/wtf.h"
++#include "base/uxr_config.h"
+ #include "services/network/public/cpp/features.h"
+ #include "third_party/blink/public/common/switches.h"
+ #include "third_party/blink/renderer/core/frame/web_feature.h"
+@@ -69,6 +74,30 @@ void NavigatorLanguage::SetLanguagesForTesting(const String& languages) {
+ }
+ 
+ void NavigatorLanguage::EnsureUpdatedLanguage() {
++  // TILION Layer 2: persona languages (navigator.languages/language), coherent with
++  // timezone+locale (rule C5). Control plane should set the Accept-Language HEADER to
++  // match (browser-process). Comma-separated, e.g. "en-US,en".
++  {
++    if (base::UxrConfig::GetInstance().Has("uxr-languages")) {
++      String p_langs(base::UxrConfig::GetInstance().Get("uxr-languages").c_str());
++      if (!p_langs.empty()) {
++        languages_ = ParseAndSanitize(p_langs);
++        languages_dirty_ = false;
++        // TILION: align ICU default locale + flush V8 so Intl/toLocaleString follow
++        // the persona language (C5). The notification clears V8 cached Intl locale.
++        // TILION P0-E fix: icu::Locale::setDefault is process-global and NOT
++        // thread-safe; only touch it on the main thread (workers would race).
++        if (!languages_.empty() && IsMainThread()) {
++          base::i18n::SetICUDefaultLocale(languages_.front().Utf8());
++          if (execution_context_ && execution_context_->GetIsolate()) {
++            execution_context_->GetIsolate()
++                ->LocaleConfigurationChangeNotification();
++          }
++        }
++        return;
++      }
++    }
++  }
+   String accept_languages_override;
+   probe::ApplyAcceptLanguageOverride(execution_context_,
+                                      &accept_languages_override);

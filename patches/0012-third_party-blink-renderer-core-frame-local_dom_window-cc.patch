@@ -1,0 +1,54 @@
+diff --git a/third_party/blink/renderer/core/frame/local_dom_window.cc b/third_party/blink/renderer/core/frame/local_dom_window.cc
+index 3761d36b53..b39e4bd028 100644
+--- a/third_party/blink/renderer/core/frame/local_dom_window.cc
++++ b/third_party/blink/renderer/core/frame/local_dom_window.cc
+@@ -31,6 +31,8 @@
+ #include <utility>
+ 
+ #include "base/command_line.h"
++#include "base/uxr_config.h"
++#include "base/strings/string_number_conversions.h"
+ #include "base/metrics/histogram_macros.h"
+ #include "base/task/single_thread_task_runner.h"
+ #include "base/trace_event/trace_id_helper.h"
+@@ -1605,6 +1607,12 @@ int LocalDOMWindow::outerHeight() const {
+   if (!GetFrame())
+     return 0;
+ 
++  {  // TILION: persona outer height (fixes outerHeight===innerHeight headless tell)
++    int p_v = 0;
++    if (base::UxrConfig::GetInstance().GetInt("uxr-outer-height", &p_v) && p_v > 0)
++      return p_v;
++  }
++
+   LocalFrame* frame = GetFrame();
+ 
+   // FencedFrames should return innerHeight to prevent passing
+@@ -1630,6 +1638,12 @@ int LocalDOMWindow::outerWidth() const {
+   if (!GetFrame())
+     return 0;
+ 
++  {  // TILION: persona outer width
++    int p_v = 0;
++    if (base::UxrConfig::GetInstance().GetInt("uxr-outer-width", &p_v) && p_v > 0)
++      return p_v;
++  }
++
+   LocalFrame* frame = GetFrame();
+ 
+   // FencedFrames should return innerWidth to prevent passing
+@@ -1833,6 +1847,14 @@ double LocalDOMWindow::devicePixelRatio() const {
+   if (!GetFrame())
+     return 0.0;
+ 
++  if (base::UxrConfig::GetInstance().Has("uxr-device-pixel-ratio")) {  // TILION
++    double p_dpr = 0.0;
++    if (base::StringToDouble(
++            base::UxrConfig::GetInstance().Get("uxr-device-pixel-ratio"), &p_dpr) &&
++        p_dpr > 0.0) {
++      return p_dpr;
++    }
++  }
+   return GetFrame()->DevicePixelRatio();
+ }
+ 

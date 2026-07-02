@@ -1,0 +1,63 @@
+diff --git a/third_party/blink/renderer/core/html/canvas/text_metrics.cc b/third_party/blink/renderer/core/html/canvas/text_metrics.cc
+index a78150b4a6..ecf6fde85a 100644
+--- a/third_party/blink/renderer/core/html/canvas/text_metrics.cc
++++ b/third_party/blink/renderer/core/html/canvas/text_metrics.cc
+@@ -4,7 +4,12 @@
+ 
+ #include "third_party/blink/renderer/core/html/canvas/text_metrics.h"
+ 
++#include <cmath>
++
++#include "base/bit_cast.h"
+ #include "base/numerics/checked_math.h"
++#include "base/strings/string_number_conversions.h"  // TILION
++#include "base/uxr_config.h"                          // TILION
+ #include "third_party/blink/renderer/bindings/core/v8/v8_canvas_text_align.h"
+ #include "third_party/blink/renderer/bindings/core/v8/v8_canvas_text_baseline.h"
+ #include "third_party/blink/renderer/bindings/core/v8/v8_text_cluster_options.h"
+@@ -92,6 +97,21 @@ TextMetrics::TextMetrics(const Font* font,
+   Update(font, direction, baseline, align, text, text_painter);
+ }
+ 
++// TILION: seeded, value-dependent sub-pixel jitter for TextMetrics. Canvas/audio/DOMRect
++// are already noised; measureText() exposed a stable, substituted-font measurement fingerprint.
++// Keyed on the canvas seed so it is per-persona and stable within a session. Fail-closed:
++// no/zero/invalid seed or non-finite/zero value -> returned unchanged.
++static double UxrJitterMetric(double v, uint32_t seed, uint32_t salt) {
++  if (seed == 0u || v == 0.0 || !std::isfinite(v))
++    return v;
++  uint64_t bits = base::bit_cast<uint64_t>(v);
++  uint32_t z = seed ^ salt ^ static_cast<uint32_t>(bits) ^
++               static_cast<uint32_t>(bits >> 32);
++  z ^= z >> 16; z *= 0x85ebca6bu; z ^= z >> 13; z *= 0xc2b2ae35u; z ^= z >> 16;
++  double delta = (static_cast<double>(z & 0xffffu) / 65535.0 - 0.5) * 0.0125;
++  return v + delta;
++}
++
+ void TextMetrics::Update(const Font* font,
+                          const TextDirection& direction,
+                          const V8CanvasTextBaseline::Enum baseline,
+@@ -167,6 +187,23 @@ void TextMetrics::Update(const Font* font,
+   } else {
+     baselines_->setIdeographic(-descent - baseline_y);
+   }
++
++  // TILION: apply per-persona jitter so TextMetrics is not a stable measurement fingerprint.
++  uint32_t ph_seed = 0;
++  base::UxrConfig& ph_cfg = base::UxrConfig::GetInstance();
++  if (ph_cfg.Has("uxr-canvas-seed"))
++    base::StringToUint(ph_cfg.Get("uxr-canvas-seed"), &ph_seed);
++  if (ph_seed != 0u) {
++    width_ = UxrJitterMetric(width_, ph_seed, 0x1001u);
++    actual_bounding_box_left_ = UxrJitterMetric(actual_bounding_box_left_, ph_seed, 0x1002u);
++    actual_bounding_box_right_ = UxrJitterMetric(actual_bounding_box_right_, ph_seed, 0x1003u);
++    actual_bounding_box_ascent_ = UxrJitterMetric(actual_bounding_box_ascent_, ph_seed, 0x1004u);
++    actual_bounding_box_descent_ = UxrJitterMetric(actual_bounding_box_descent_, ph_seed, 0x1005u);
++    font_bounding_box_ascent_ = UxrJitterMetric(font_bounding_box_ascent_, ph_seed, 0x1006u);
++    font_bounding_box_descent_ = UxrJitterMetric(font_bounding_box_descent_, ph_seed, 0x1007u);
++    em_height_ascent_ = UxrJitterMetric(em_height_ascent_, ph_seed, 0x1008u);
++    em_height_descent_ = UxrJitterMetric(em_height_descent_, ph_seed, 0x1009u);
++  }
+ }
+ 
+ std::pair<float, gfx::RectF> TextMetrics::MeasureRuns(

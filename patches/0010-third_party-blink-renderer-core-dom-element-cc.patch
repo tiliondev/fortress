@@ -1,0 +1,63 @@
+diff --git a/third_party/blink/renderer/core/dom/element.cc b/third_party/blink/renderer/core/dom/element.cc
+index aa3d9236fd..177c17bd88 100644
+--- a/third_party/blink/renderer/core/dom/element.cc
++++ b/third_party/blink/renderer/core/dom/element.cc
+@@ -32,7 +32,10 @@
+ #include <memory>
+ #include <utility>
+ 
++#include "base/bit_cast.h"
+ #include "base/containers/adapters.h"
++#include "base/strings/string_number_conversions.h"
++#include "base/uxr_config.h"
+ #include "base/feature_list.h"
+ #include "cc/input/snap_selection_strategy.h"
+ #include "components/viz/common/surfaces/tracked_element_rects.h"
+@@ -3406,6 +3409,39 @@ gfx::Rect Element::VisibleBoundsRespectingClipsInLocalRoot() const {
+   return ToPixelSnappedRect(rect_in_local_root);
+ }
+ 
++namespace {
++// TILION: seeded sub-pixel DOMRect jitter. Single chokepoint Element::ClientQuads
++// covers getClientRects + getBoundingClientRect (both derive from these quads), so
++// it is coherent by construction. <0.01px = invisible; stable per element+seed.
++void UxrJitterQuads(Vector<gfx::QuadF>& quads) {
++  uint32_t p_seed = 0u;
++  // TILION P1-F/P2-C: fail-closed (no golden-constant), and key jitter on each
++  // corner offset RELATIVE to p1 (scroll-invariant) so width/height stay constant
++  // across scroll/transform while still being noised and stable per element shape.
++  if (!base::StringToUint(
++          base::UxrConfig::GetInstance().Get("uxr-canvas-seed"), &p_seed) ||
++      p_seed == 0u) {
++    return;
++  }
++  auto jrel = [&](float coord, float rel, uint32_t axis) -> float {
++    uint32_t h = p_seed ^ base::bit_cast<uint32_t>(rel) ^ (axis * 0x9e3779b9u);
++    h ^= h >> 16; h *= 0x85ebca6bu; h ^= h >> 13; h *= 0xc2b2ae35u; h ^= h >> 16;
++    float d = (static_cast<float>(h & 0xFFFFu) / 65535.0f - 0.5f) * 0.02f;
++    return coord + d;
++  };
++  for (auto& q : quads) {
++    const gfx::PointF b = q.p1();
++    q.set_p1(gfx::PointF(jrel(q.p1().x(), 0.0f, 0), jrel(q.p1().y(), 0.0f, 1)));
++    q.set_p2(gfx::PointF(jrel(q.p2().x(), q.p2().x() - b.x(), 0),
++                         jrel(q.p2().y(), q.p2().y() - b.y(), 1)));
++    q.set_p3(gfx::PointF(jrel(q.p3().x(), q.p3().x() - b.x(), 0),
++                         jrel(q.p3().y(), q.p3().y() - b.y(), 1)));
++    q.set_p4(gfx::PointF(jrel(q.p4().x(), q.p4().x() - b.x(), 0),
++                         jrel(q.p4().y(), q.p4().y() - b.y(), 1)));
++  }
++}
++}  // namespace
++
+ void Element::ClientQuads(Vector<gfx::QuadF>& quads) const {
+   LayoutObject* element_layout_object = GetLayoutObject();
+   if (!element_layout_object) {
+@@ -3439,6 +3475,7 @@ void Element::ClientQuads(Vector<gfx::QuadF>& quads) const {
+   if (element_layout_object->IsBoxModelObject() ||
+       element_layout_object->IsBR()) {
+     element_layout_object->AbsoluteQuads(quads);
++    UxrJitterQuads(quads);  // TILION
+   }
+ }
+ 

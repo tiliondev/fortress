@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<!DOCTYPE fontconfig SYSTEM "fonts.dtd">
+<fontconfig>
+  <dir>@FONTDIR@</dir>
+  <cachedir>@CACHEDIR@</cachedir>
+  <alias><family>sans-serif</family><prefer><family>Arial</family><family>Segoe UI</family></prefer></alias>
+  <alias><family>serif</family><prefer><family>Times New Roman</family></prefer></alias>
+  <alias><family>monospace</family><prefer><family>Courier New</family><family>Consolas</family></prefer></alias>
+  <alias><family>Arial</family><default><family>sans-serif</family></default></alias>
+  <alias><family>emoji</family><prefer><family>Segoe UI Emoji</family></prefer></alias>
+  <match target="pattern"><test name="family"><string>Liberation Sans</string></test><edit name="family" mode="assign" binding="strong"><string>__uxr_none__</string></edit></match>
+  <match target="pattern"><test name="family"><string>Liberation Serif</string></test><edit name="family" mode="assign" binding="strong"><string>__uxr_none__</string></edit></match>
+  <match target="pattern"><test name="family"><string>Liberation Mono</string></test><edit name="family" mode="assign" binding="strong"><string>__uxr_none__</string></edit></match>
+  <match target="pattern"><test name="family"><string>Carlito</string></test><edit name="family" mode="assign" binding="strong"><string>__uxr_none__</string></edit></match>
+  <match target="pattern"><test name="family"><string>Caladea</string></test><edit name="family" mode="assign" binding="strong"><string>__uxr_none__</string></edit></match>
+</fontconfig>

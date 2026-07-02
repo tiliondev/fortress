@@ -1,0 +1,20 @@
+# Chromium build output — never committed (lives in Releases / built locally)
+out/
+src/
+depot_tools/
+*.tar.gz
+*.deb
+*.AppImage
+
+# build / runtime junk
+*.log
+*.pyc
+__pycache__/
+.cache/
+tmp_build/
+dist/
+
+# editor
+.vscode/
+.idea/
+*.swp

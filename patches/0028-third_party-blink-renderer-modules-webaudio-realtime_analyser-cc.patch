@@ -1,0 +1,123 @@
+diff --git a/third_party/blink/renderer/modules/webaudio/realtime_analyser.cc b/third_party/blink/renderer/modules/webaudio/realtime_analyser.cc
+index d0b1bd6401..e3fc747a18 100644
+--- a/third_party/blink/renderer/modules/webaudio/realtime_analyser.cc
++++ b/third_party/blink/renderer/modules/webaudio/realtime_analyser.cc
+@@ -32,6 +32,9 @@
+ #include <complex>
+ 
+ #include "base/compiler_specific.h"
++#include "base/command_line.h"  // TILION
++#include "base/uxr_config.h"
++#include "base/strings/string_number_conversions.h"  // TILION
+ #include "media/base/audio_bus.h"
+ #include "third_party/blink/renderer/platform/audio/audio_bus.h"
+ #include "third_party/blink/renderer/platform/audio/audio_utilities.h"
+@@ -98,6 +101,34 @@ bool RealtimeAnalyser::SetFftSize(uint32_t size) {
+   return true;
+ }
+ 
++namespace {
++// TILION Layer 2: seeded sub-perceptual analyser farble. Same seed+index function
++// used by BOTH float and byte paths so the two representations stay mutually
++// coherent (cross-path agreement; deterministic per session-seed).
++bool UxrAudioSeed(uint32_t* out) {
++  if (!base::UxrConfig::GetInstance().Has("uxr-audio-seed")) {
++    return false;
++  }
++  uint32_t sd = 0u;
++  if (!base::StringToUint(base::UxrConfig::GetInstance().Get("uxr-audio-seed"), &sd)) {
++    sd = 0u;
++  }
++  if (sd == 0u) {
++    sd = 0x9e3779b9u;
++  }
++  *out = sd;
++  return true;
++}
++double UxrAudioDelta(uint32_t seed, unsigned i) {
++  uint32_t st = seed ^ (i * 0x9e3779b9u + 0x85ebca6bu);
++  st ^= st << 13;
++  st ^= st >> 17;
++  st ^= st << 5;
++  double r = (st & 0xFFFFFFu) / static_cast<double>(0x1000000);
++  return (r - 0.5) * 2.0e-4;  // ~+/-1e-4 dB, inaudible
++}
++}  // namespace
++
+ void RealtimeAnalyser::GetFloatFrequencyData(DOMFloat32Array* destination_array,
+                                              double current_time) {
+   DCHECK(IsMainThread());
+@@ -113,10 +144,15 @@ void RealtimeAnalyser::GetFloatFrequencyData(DOMFloat32Array* destination_array,
+   const size_t source_length = magnitude_buffer_.size();
+   const size_t len = std::min(source_length, destination_array->length());
+   if (len > 0) {
++    uint32_t p_seed = 0u;
++    const bool p_on = UxrAudioSeed(&p_seed);
+     base::span<float> destination = destination_array->AsSpan();
+     for (unsigned i = 0; i < len; ++i) {
+       const float linear_value = magnitude_buffer_[i];
+-      const double db_mag = audio_utilities::LinearToDecibels(linear_value);
++      double db_mag = audio_utilities::LinearToDecibels(linear_value);
++      if (p_on) {
++        db_mag += UxrAudioDelta(p_seed, i);  // TILION
++      }
+       destination[i] = static_cast<float>(db_mag);
+     }
+   }
+@@ -146,10 +182,15 @@ void RealtimeAnalyser::GetByteFrequencyData(DOMUint8Array* destination_array,
+                                        : 1.0 / (max_decibels_ - min_decibels_);
+     const double min_decibels = min_decibels_;
+ 
++    uint32_t p_seed = 0u;
++    const bool p_on = UxrAudioSeed(&p_seed);
+     base::span<unsigned char> destination = destination_array->AsSpan();
+     for (unsigned i = 0; i < len; ++i) {
+       const float linear_value = magnitude_buffer_[i];
+-      const double db_mag = audio_utilities::LinearToDecibels(linear_value);
++      double db_mag = audio_utilities::LinearToDecibels(linear_value);
++      if (p_on) {
++        db_mag += UxrAudioDelta(p_seed, i);  // TILION
++      }
+ 
+       // The range m_minDecibels to m_maxDecibels will be scaled to byte values
+       // from 0 to UCHAR_MAX.
+@@ -177,13 +218,17 @@ void RealtimeAnalyser::GetFloatTimeDomainData(
+ 
+     const unsigned write_index = GetWriteIndex();
+ 
++    uint32_t p_seed = 0u;
++    const bool p_on = UxrAudioSeed(&p_seed);  // TILION: correlate w/ freq path
+     base::span<float> destination = destination_array->AsSpan();
+     for (unsigned i = 0; i < len; ++i) {
+       // Buffer access is protected due to modulo operation.
+       float value =
+           input_buffer_[(i + write_index - fft_size + kInputBufferSize) %
+                         kInputBufferSize];
+-
++      if (p_on) {
++        value += static_cast<float>(UxrAudioDelta(p_seed, i));  // TILION
++      }
+       destination[i] = value;
+     }
+   }
+@@ -202,6 +247,8 @@ void RealtimeAnalyser::GetByteTimeDomainData(DOMUint8Array* destination_array) {
+ 
+     const unsigned write_index = GetWriteIndex();
+ 
++    uint32_t p_seed = 0u;
++    const bool p_on = UxrAudioSeed(&p_seed);  // TILION
+     base::span<unsigned char> destination = destination_array->AsSpan();
+     for (unsigned i = 0; i < len; ++i) {
+       // Buffer access is protected due to modulo operation.
+@@ -210,7 +257,10 @@ void RealtimeAnalyser::GetByteTimeDomainData(DOMUint8Array* destination_array) {
+                         kInputBufferSize];
+ 
+       // Scale from nominal -1 -> +1 to unsigned byte.
+-      const double scaled_value = 128 * (value + 1);
++      double scaled_value = 128 * (value + 1);
++      if (p_on) {
++        scaled_value += UxrAudioDelta(p_seed, i) * 128.0;  // TILION
++      }
+ 
+       // Clip to valid range.
+       destination[i] =

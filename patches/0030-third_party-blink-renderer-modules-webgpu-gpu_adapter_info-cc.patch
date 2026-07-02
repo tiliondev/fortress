@@ -1,0 +1,40 @@
+diff --git a/third_party/blink/renderer/modules/webgpu/gpu_adapter_info.cc b/third_party/blink/renderer/modules/webgpu/gpu_adapter_info.cc
+index 9d155705c1..24ba62fb06 100644
+--- a/third_party/blink/renderer/modules/webgpu/gpu_adapter_info.cc
++++ b/third_party/blink/renderer/modules/webgpu/gpu_adapter_info.cc
+@@ -4,6 +4,9 @@
+ 
+ #include "third_party/blink/renderer/modules/webgpu/gpu_adapter_info.h"
+ 
++#include "base/command_line.h"  // TILION
++#include "base/uxr_config.h"
++
+ #include "third_party/blink/renderer/modules/webgpu/gpu_memory_heap_info.h"
+ #include "third_party/blink/renderer/modules/webgpu/gpu_subgroup_matrix_config.h"
+ 
+@@ -34,7 +37,24 @@ GPUAdapterInfo::GPUAdapterInfo(const String& vendor,
+       type_(type),
+       d3d_shader_model_(d3d_shader_model),
+       vk_driver_version_(vk_driver_version),
+-      power_preference_(power_preference) {}
++      power_preference_(power_preference) {
++  // TILION Layer 2: WebGPU adapter persona via cmdline, so navigator.gpu agrees with
++  // the WebGL GPU spoof (no SwiftShader/fallback adapter beside a claimed NVIDIA).
++  // When WebGPU is disabled the page sees requestAdapter()==null (coherent); when
++  // enabled it now reports the persona instead of the real software adapter.
++  if (base::UxrConfig::GetInstance().Has("uxr-webgpu-vendor")) {
++    vendor_ = String(base::UxrConfig::GetInstance().Get("uxr-webgpu-vendor").c_str());
++    is_fallback_adapter_ = false;
++  }
++  if (base::UxrConfig::GetInstance().Has("uxr-webgpu-architecture")) {
++    architecture_ =
++        String(base::UxrConfig::GetInstance().Get("uxr-webgpu-architecture").c_str());
++  }
++  if (base::UxrConfig::GetInstance().Has("uxr-webgpu-description")) {
++    description_ =
++        String(base::UxrConfig::GetInstance().Get("uxr-webgpu-description").c_str());
++  }
++}
+ 
+ void GPUAdapterInfo::AppendMemoryHeapInfo(GPUMemoryHeapInfo* info) {
+   memory_heaps_.push_back(info);

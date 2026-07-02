@@ -1,0 +1,96 @@
+diff --git a/components/embedder_support/user_agent_utils.cc b/components/embedder_support/user_agent_utils.cc
+index 608bea5cb3..3f0bf7c03f 100644
+--- a/components/embedder_support/user_agent_utils.cc
++++ b/components/embedder_support/user_agent_utils.cc
+@@ -215,9 +215,9 @@ const blink::UserAgentBrandList GetUserAgentBrandFullVersionListInternal(
+ // depending on the Reduce User-Agent reduction phase features.
+ std::string GetUserAgentInternal() {
+   std::string product = GetProductAndVersion();
+-  if (base::CommandLine::ForCurrentProcess()->HasSwitch(kHeadless)) {
+-    product.insert(0, "Headless");
+-  }
++  // TILION patch #2: never prepend "Headless" to the product. Under --headless the
++  // stock code makes the UA "HeadlessChrome/...", a blatant automation tell. We keep
++  // it as real "Chrome/...".
+ 
+ #if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
+   if (base::CommandLine::ForCurrentProcess()->HasSwitch(kUseMobileUserAgent)) {
+@@ -299,6 +299,18 @@ std::string GetUserAgentPlatform() {
+ }
+ 
+ std::string GetUnifiedPlatform() {
++  // TILION: persona OS token for the (reduced) UA string. Fixes the C1 instant-flag
++  // where navigator.userAgent said Linux while platform/Sec-CH-UA-Platform said
++  // Windows. Browser-process read; control plane passes the full unified form,
++  // e.g. "Windows NT 10.0; Win64; x64". Must agree with --uxr-platform/-ua-platform.
++  {
++    const base::CommandLine* p_cmd = base::CommandLine::ForCurrentProcess();
++    if (p_cmd->HasSwitch("uxr-ua-os")) {
++      std::string p_os = p_cmd->GetSwitchValueASCII("uxr-ua-os");
++      if (!p_os.empty())
++        return p_os;
++    }
++  }
+ #if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS)
+   // This constant is only used on Android (desktop) and Linux.
+   constexpr char kUnifiedPlatformChromeOSX64[] = "X11; CrOS x86_64 14541.0.0";
+@@ -505,6 +517,21 @@ blink::UserAgentBrandList GenerateBrandVersionList(
+   if (brand) {
+     brand_version_list.emplace_back(brand.value(), version);
+   }
++  // TILION Layer 2: add a "Google Chrome" brand for a Chrome persona (we build
++  // Chromium, so the official brand is absent). Closes the brand-list incoherence
++  // (UA says Chrome, brands said Chromium). Browser-process read, no whitelist.
++  {
++    const base::CommandLine* p_cmd = base::CommandLine::ForCurrentProcess();
++    // TILION: default to the "Google Chrome" brand (overridable). A stealth fork
++    // must never advertise "Chromium"-only brands = a repackaged-Chromium signal.
++    std::string p_brand = p_cmd->HasSwitch("uxr-ua-brand")
++                              ? p_cmd->GetSwitchValueASCII("uxr-ua-brand")
++                              : std::string("Google Chrome");
++    if (!p_brand.empty()) {
++      brand_version_list.emplace_back(
++          blink::UserAgentBrandVersion{p_brand, version});
++    }
++  }
+   if (additional_brand_version) {
+     brand_version_list.emplace_back(additional_brand_version.value());
+   }
+@@ -603,6 +630,12 @@ std::string GetPlatformVersion() {
+ }
+ 
+ std::string GetPlatformForUAMetadata() {
++  // TILION: persona-driven Sec-CH-UA-Platform (must match navigator.platform OS).
++  {
++    const base::CommandLine* cmd = base::CommandLine::ForCurrentProcess();
++    if (cmd->HasSwitch("uxr-ua-platform"))
++      return cmd->GetSwitchValueASCII("uxr-ua-platform");
++  }
+ #if BUILDFLAG(IS_ANDROID)
+   if (base::android::device_info::is_desktop() ||
+       base::android::device_info::is_xr()) {
+@@ -670,6 +703,24 @@ blink::UserAgentMetadata GetUserAgentMetadata(bool only_low_entropy_ch) {
+   metadata.bitness = GetCpuBitness();
+   metadata.wow64 = IsWoW64();
+   metadata.platform_version = GetPlatformVersion();
++  // TILION Layer 2: high-entropy Client Hints persona via cmdline (browser-process,
++  // no renderer whitelist needed). Keeps userAgentData high-entropy values coherent
++  // with the UA string + Sec-CH-UA (coherence rule C15).
++  {
++    const base::CommandLine* p_cmd = base::CommandLine::ForCurrentProcess();
++    if (p_cmd->HasSwitch("uxr-ua-arch"))
++      metadata.architecture = p_cmd->GetSwitchValueASCII("uxr-ua-arch");
++    if (p_cmd->HasSwitch("uxr-ua-bitness"))
++      metadata.bitness = p_cmd->GetSwitchValueASCII("uxr-ua-bitness");
++    if (p_cmd->HasSwitch("uxr-ua-model"))
++      metadata.model = p_cmd->GetSwitchValueASCII("uxr-ua-model");
++    if (p_cmd->HasSwitch("uxr-ua-platform-version"))
++      metadata.platform_version = p_cmd->GetSwitchValueASCII("uxr-ua-platform-version");
++    if (p_cmd->HasSwitch("uxr-ua-full-version"))
++      metadata.full_version = p_cmd->GetSwitchValueASCII("uxr-ua-full-version");
++    if (p_cmd->HasSwitch("uxr-ua-wow64"))
++      metadata.wow64 = (p_cmd->GetSwitchValueASCII("uxr-ua-wow64") == "true");
++  }
+   return metadata;
+ }
+ 

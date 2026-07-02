@@ -1,0 +1,28 @@
+# Fortress — official max-stealth Chromium build args for macOS (GN).
+# Used by build/macos/build.sh. Set target_cpu to "arm64" (Apple Silicon) or "x64" (Intel).
+# Requires: Xcode + command line tools, set up per docs/BUILD_NATIVE.md.
+
+is_official_build = true
+is_component_build = false
+is_debug = false
+dcheck_always_on = false
+
+symbol_level = 0
+blink_symbol_level = 0
+enable_dsyms = false
+enable_stripping = true
+
+# Real media codecs.
+proprietary_codecs = true
+ffmpeg_branding = "Chrome"
+
+# De-brand; runtime persona supplies the consumer identity.
+is_chrome_branded = false
+chrome_pgo_phase = 0
+
+enable_nacl = false
+enable_widevine = false
+
+# Override on the command line for Intel:  target_cpu="x64"
+target_cpu = "arm64"
+target_os = "mac"

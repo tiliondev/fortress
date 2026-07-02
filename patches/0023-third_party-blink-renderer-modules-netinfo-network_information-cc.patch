@@ -1,0 +1,41 @@
+diff --git a/third_party/blink/renderer/modules/netinfo/network_information.cc b/third_party/blink/renderer/modules/netinfo/network_information.cc
+index 976a3c8c36..bdb554eb59 100644
+--- a/third_party/blink/renderer/modules/netinfo/network_information.cc
++++ b/third_party/blink/renderer/modules/netinfo/network_information.cc
+@@ -3,6 +3,8 @@
+ // found in the LICENSE file.
+ 
+ #include "third_party/blink/renderer/modules/netinfo/network_information.h"
++#include "base/uxr_config.h"
++#include "base/strings/string_number_conversions.h"
+ 
+ #include <algorithm>
+ 
+@@ -133,6 +135,12 @@ V8EffectiveConnectionType NetworkInformation::effectiveType() {
+ 
+ uint32_t NetworkInformation::rtt() {
+   MaybeShowWebHoldbackConsoleMsg();
++  {  // TILION: persona network rtt (avoid rtt==0 headless tell)
++    int p_v = 0;
++    if (base::UxrConfig::GetInstance().GetInt("uxr-net-rtt", &p_v) && p_v >= 0)
++      return GetNetworkStateNotifier().RoundRtt(  // TILION P0-M: 50ms buckets
++          Host(), base::Milliseconds(p_v));
++  }
+   std::optional<base::TimeDelta> override_rtt =
+       GetNetworkStateNotifier().GetWebHoldbackHttpRtt();
+   if (override_rtt) {
+@@ -149,6 +157,14 @@ uint32_t NetworkInformation::rtt() {
+ 
+ double NetworkInformation::downlink() {
+   MaybeShowWebHoldbackConsoleMsg();
++  if (base::UxrConfig::GetInstance().Has("uxr-net-downlink")) {  // TILION
++    double p_d = 0.0;
++    if (base::StringToDouble(
++            base::UxrConfig::GetInstance().Get("uxr-net-downlink"), &p_d) &&
++        p_d >= 0.0) {
++      return GetNetworkStateNotifier().RoundMbps(Host(), p_d);  // TILION P0-M
++    }
++  }
+   std::optional<double> override_downlink_mbps =
+       GetNetworkStateNotifier().GetWebHoldbackDownlinkThroughputMbps();
+   if (override_downlink_mbps) {

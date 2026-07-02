@@ -1,0 +1,32 @@
+diff --git a/third_party/blink/renderer/core/input/pointer_event_manager.cc b/third_party/blink/renderer/core/input/pointer_event_manager.cc
+index a7fa084424..e6f2e4410f 100644
+--- a/third_party/blink/renderer/core/input/pointer_event_manager.cc
++++ b/third_party/blink/renderer/core/input/pointer_event_manager.cc
+@@ -975,6 +975,13 @@ WebInputEventResult PointerEventManager::CreateAndDispatchPointerEvent(
+   Vector<WebPointerEvent> pointer_coalesced_events;
+   for (const WebMouseEvent& e : coalesced_events)
+     pointer_coalesced_events.push_back(WebPointerEvent(event_type, e));
++  // TILION: real pointermove always carries >=1 coalesced sample; CDP-synthesized moves
++  // arrive with an empty coalesced batch, which getCoalescedEvents() exposes as an
++  // automation tell. Synthesize one sample (the event itself) so the batch is non-empty.
++  if (pointer_coalesced_events.empty() &&
++      event_type == WebInputEvent::Type::kPointerMove) {
++    pointer_coalesced_events.push_back(web_pointer_event);
++  }
+   Vector<WebPointerEvent> pointer_predicted_events;
+   for (const WebMouseEvent& e : predicted_events)
+     pointer_predicted_events.push_back(WebPointerEvent(event_type, e));
+@@ -1115,6 +1122,13 @@ WebInputEventResult PointerEventManager::SendMousePointerEvent(
+   Vector<WebPointerEvent> pointer_coalesced_events;
+   for (const WebMouseEvent& e : coalesced_events)
+     pointer_coalesced_events.push_back(WebPointerEvent(event_type, e));
++  // TILION: real pointermove always carries >=1 coalesced sample; CDP-synthesized moves
++  // arrive with an empty coalesced batch, which getCoalescedEvents() exposes as an
++  // automation tell. Synthesize one sample (the event itself) so the batch is non-empty.
++  if (pointer_coalesced_events.empty() &&
++      event_type == WebInputEvent::Type::kPointerMove) {
++    pointer_coalesced_events.push_back(web_pointer_event);
++  }
+   Vector<WebPointerEvent> pointer_predicted_events;
+   for (const WebMouseEvent& e : predicted_events)
+     pointer_predicted_events.push_back(WebPointerEvent(event_type, e));

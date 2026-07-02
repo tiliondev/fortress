@@ -1,0 +1,35 @@
+diff --git a/content/browser/renderer_host/render_process_host_impl.cc b/content/browser/renderer_host/render_process_host_impl.cc
+index 4c144f58e7..24acc0ba0d 100644
+--- a/content/browser/renderer_host/render_process_host_impl.cc
++++ b/content/browser/renderer_host/render_process_host_impl.cc
+@@ -2011,6 +2011,20 @@ bool RenderProcessHostImpl::Init() {
+       storage_partition_impl_->cors_exempt_header_list(),
+       GetContentClient()->browser()->GetOriginTrialsSettings(), cpu_tier,
+       trace_id);
++  // UXR: forward persona/seed config to the renderer over IPC (read from the
++  // BROWSER command line), so these values never land on the renderer cmdline.
++  {
++    base::flat_map<std::string, std::string> uxr_cfg;
++    for (const auto& sw :
++         base::CommandLine::ForCurrentProcess()->GetSwitches()) {
++      if (sw.first.compare(0, 4, "uxr-") == 0) {
++        uxr_cfg[sw.first] = sw.second;
++      }
++    }
++    if (!uxr_cfg.empty()) {
++      GetRendererInterface()->SetUxrConfig(std::move(uxr_cfg));
++    }
++  }
+ 
+   if (run_renderer_in_process()) {
+     CHECK(g_renderer_main_thread_factory, base::NotFatalUntil::M152);
+@@ -3824,6 +3838,9 @@ void RenderProcessHostImpl::PropagateBrowserCommandLineToRenderer(
+   // Propagate the following switches to the renderer command line (along
+   // with any associated values) if present in the browser command line.
+   static const char* const kSwitchNames[] = {
++      // TILION Layer 2: propagate persona switches to the renderer so renderer-side
++      // getters (navigator.*, WebGL) can read them. Web-undetectable: pages cannot
++      // read /proc/cmdline, and the host is ours.
+       switches::kDisableInProcessStackTraces,
+       sandbox::policy::switches::kDisableLandlockSandbox,
+       sandbox::policy::switches::kDisableSeccompFilterSandbox,

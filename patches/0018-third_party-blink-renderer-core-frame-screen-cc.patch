@@ -1,0 +1,82 @@
+diff --git a/third_party/blink/renderer/core/frame/screen.cc b/third_party/blink/renderer/core/frame/screen.cc
+index 69ffc2b05f..03722c03d7 100644
+--- a/third_party/blink/renderer/core/frame/screen.cc
++++ b/third_party/blink/renderer/core/frame/screen.cc
+@@ -29,6 +29,9 @@
+ #include "third_party/blink/renderer/core/frame/screen.h"
+ 
+ #include "base/numerics/safe_conversions.h"
++#include "base/command_line.h"  // TILION
++#include "base/uxr_config.h"
++#include "base/strings/string_number_conversions.h"  // TILION
+ #include "services/network/public/mojom/permissions_policy/permissions_policy_feature.mojom-blink.h"
+ #include "third_party/blink/renderer/core/event_target_names.h"
+ #include "third_party/blink/renderer/core/frame/local_dom_window.h"
+@@ -40,6 +43,23 @@
+ 
+ namespace blink {
+ 
++namespace {
++// TILION Layer 2: persona screen metrics via cmdline (avoid headless 800x600 default;
++// avail* fall back to screen dims so setting just width/height stays coherent).
++bool UxrScreenInt(const char* sw, int* out) {
++  if (!base::UxrConfig::GetInstance().Has(sw)) {
++    return false;
++  }
++  int v = 0;
++  if (!base::UxrConfig::GetInstance().GetInt(sw, &v) || v <= 0) {
++    return false;
++  }
++  *out = v;
++  return true;
++}
++}  // namespace
++
++
+ Screen::Screen(LocalDOMWindow* window, int64_t display_id)
+     : ExecutionContextClient(window), display_id_(display_id) {}
+ 
+@@ -81,12 +101,14 @@ bool Screen::AreWebExposedScreenPropertiesEqual(
+ int Screen::height() const {
+   if (!DomWindow())
+     return 0;
++  int p; if (UxrScreenInt("uxr-screen-height", &p)) return p;  // TILION
+   return GetRect(/*available=*/false).height();
+ }
+ 
+ int Screen::width() const {
+   if (!DomWindow())
+     return 0;
++  int p; if (UxrScreenInt("uxr-screen-width", &p)) return p;  // TILION
+   return GetRect(/*available=*/false).width();
+ }
+ 
+@@ -100,6 +122,8 @@ unsigned Screen::colorDepth() const {
+   if (!DomWindow()) {
+     return unknown_color_depth;
+   }
++  int p; if (UxrScreenInt("uxr-screen-color-depth", &p))  // TILION
++    return base::saturated_cast<unsigned>(p);
+   return GetScreenInfo().depth == 0
+              ? unknown_color_depth
+              : base::saturated_cast<unsigned>(GetScreenInfo().depth);
+@@ -124,12 +148,19 @@ int Screen::availTop() const {
+ int Screen::availHeight() const {
+   if (!DomWindow())
+     return 0;
++  int p;
++  if (UxrScreenInt("uxr-screen-avail-height", &p)) return p;  // TILION
++  if (UxrScreenInt("uxr-screen-height", &p))  // TILION: taskbar-aware avail
++    return p > 48 ? p - 48 : p;
+   return GetRect(/*available=*/true).height();
+ }
+ 
+ int Screen::availWidth() const {
+   if (!DomWindow())
+     return 0;
++  int p;
++  if (UxrScreenInt("uxr-screen-avail-width", &p)) return p;  // TILION
++  if (UxrScreenInt("uxr-screen-width", &p)) return p;  // TILION
+   return GetRect(/*available=*/true).width();
+ }
+ 

@@ -1,0 +1,74 @@
+diff --git a/third_party/blink/renderer/platform/graphics/image_data_buffer.cc b/third_party/blink/renderer/platform/graphics/image_data_buffer.cc
+index c76f6553e1..df8be63237 100644
+--- a/third_party/blink/renderer/platform/graphics/image_data_buffer.cc
++++ b/third_party/blink/renderer/platform/graphics/image_data_buffer.cc
+@@ -33,6 +33,9 @@
+ #include "third_party/blink/renderer/platform/graphics/image_data_buffer.h"
+ 
+ #include "base/compiler_specific.h"
++#include "base/command_line.h"  // TILION
++#include "base/strings/string_number_conversions.h"  // TILION
++#include "base/uxr_config.h"  // TILION
+ #include "base/memory/ptr_util.h"
+ #include "third_party/blink/renderer/platform/image-encoders/image_encoder_utils.h"
+ #include "third_party/blink/renderer/platform/wtf/text/base64.h"
+@@ -43,6 +46,51 @@
+ 
+ namespace blink {
+ 
++namespace {
++// TILION: identical seeded canvas noise as getImageData (absolute coords, same
++// fmix32) so toDataURL/toBlob and getImageData return pixel-identical results
++// (closes the cross-path canvas tell). Operates on the encode COPY (pixmap_), not
++// the source canvas. Skips alpha; same +-1 across RGB (byte-order-independent).
++void UxrNoiseEncodeBuffer(const SkPixmap& pm) {
++  uint32_t seed = 0u;
++  // Must MATCH base_rendering_context_2d getImageData EXACTLY (audit P0-G):
++  // StringToUint, fail-closed on invalid/zero, value-dependent + per-channel.
++  if (!base::StringToUint(
++          base::UxrConfig::GetInstance().Get("uxr-canvas-seed"), &seed) ||
++      seed == 0u) {
++    return;
++  }
++  const SkColorType ct = pm.colorType();
++  if (ct != kRGBA_8888_SkColorType && ct != kBGRA_8888_SkColorType) {
++    return;
++  }
++  uint8_t* px = static_cast<uint8_t*>(pm.writable_addr());
++  if (!px) {
++    return;
++  }
++  const int w = pm.width();
++  const int h = pm.height();
++  const size_t rb = pm.rowBytes();
++  for (int y = 0; y < h; ++y) {
++    uint8_t* row = UNSAFE_BUFFERS(px + static_cast<size_t>(y) * rb);
++    for (int x = 0; x < w; ++x) {
++      for (int ch = 0; ch < 3; ++ch) {
++        uint8_t* p = UNSAFE_BUFFERS(row + static_cast<size_t>(x) * 4 + ch);
++        const uint32_t v = *p;
++        uint32_t z = seed ^ (static_cast<uint32_t>(x) * 374761393u) ^
++                     (static_cast<uint32_t>(y) * 668265263u) ^
++                     (static_cast<uint32_t>(ch) * 0x9e3779b9u) ^
++                     (v * 2654435761u);
++        z ^= z >> 16; z *= 0x85ebca6bu; z ^= z >> 13; z *= 0xc2b2ae35u;
++        z ^= z >> 16;
++        const int nv = static_cast<int>(v) + ((z & 1u) ? 1 : -1);
++        *p = static_cast<uint8_t>(nv < 0 ? 0 : (nv > 255 ? 255 : nv));
++      }
++    }
++  }
++}
++}  // namespace
++
+ ImageDataBuffer::ImageDataBuffer(scoped_refptr<StaticBitmapImage> image) {
+   if (!image)
+     return;
+@@ -89,6 +137,7 @@ ImageDataBuffer::ImageDataBuffer(scoped_refptr<StaticBitmapImage> image) {
+       return;
+     }
+     MSAN_CHECK_MEM_IS_INITIALIZED(pixmap_.addr(), pixmap_.computeByteSize());
++    UxrNoiseEncodeBuffer(pixmap_);  // TILION: coherent with getImageData
+     retained_image_ = SkImages::RasterFromData(info, std::move(data), rowBytes);
+   } else {
+     retained_image_ = paint_image.GetSwSkImage();

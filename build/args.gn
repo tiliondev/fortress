@@ -1,0 +1,34 @@
+# Fortress — official, max-stealth Chromium build args (GN)
+# Used by build/build.sh:  gn gen out/Fortress --args="$(cat build/args.gn)"
+
+# Official, optimized, single-binary (NOT a component/dev build).
+is_official_build = true
+is_component_build = false
+is_debug = false
+dcheck_always_on = false
+
+# Stripped — no symbols (smaller, fewer tells).
+symbol_level = 0
+blink_symbol_level = 0
+
+# Real media: proprietary codecs + Chrome ffmpeg branding so canPlayType('video/mp4')
+# returns "probably" (stock Chromium returns "" — a headless tell).
+proprietary_codecs = true
+ffmpeg_branding = "Chrome"
+
+# De-brand: build as Chromium (no Google branding); the consumer "Google Chrome"
+# identity is applied at runtime via --uxr-* switches, not baked in.
+is_chrome_branded = false
+
+# No PGO profile dependency (we build from source without Google's PGO data).
+chrome_pgo_phase = 0
+
+# Trim weight / attack surface.
+enable_nacl = false
+enable_widevine = false
+
+# Target.
+target_cpu = "x64"
+target_os = "linux"
+
+# ThinLTO is on by default for official builds; left implicit.

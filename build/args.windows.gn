@@ -1,0 +1,25 @@
+# Fortress — official max-stealth Chromium build args for WINDOWS x64 (GN).
+# Used by build/windows/build.ps1:  gn gen out\Fortress --args="(cat build\args.windows.gn)"
+# Requires: Visual Studio 2022 (C++ workload) + Windows 11 SDK, set up per docs/BUILD_NATIVE.md.
+
+is_official_build = true
+is_component_build = false
+is_debug = false
+dcheck_always_on = false
+
+symbol_level = 0
+blink_symbol_level = 0
+
+# Real media (canPlayType('video/mp4') -> "probably"; stock returns "" = a headless tell).
+proprietary_codecs = true
+ffmpeg_branding = "Chrome"
+
+# De-brand: build as Chromium; runtime persona supplies the "Google Chrome" identity.
+is_chrome_branded = false
+chrome_pgo_phase = 0
+
+enable_nacl = false
+enable_widevine = false
+
+target_cpu = "x64"
+target_os = "win"

@@ -1,0 +1,15 @@
+{
+  "name": "tilion-fortress",
+  "version": "151.0.7908.0",
+  "description": "Install and drive the Fortress stealth Chromium engine. Prebuilt binary, no source.",
+  "type": "module",
+  "main": "index.js",
+  "bin": { "tilion-fortress": "cli.js" },
+  "files": ["index.js", "cli.js", "README.md"],
+  "engines": { "node": ">=18" },
+  "keywords": ["chromium", "stealth", "browser", "automation", "anti-bot", "fortress", "tilion"],
+  "author": "arham766",
+  "license": "BSD-3-Clause",
+  "repository": { "type": "git", "url": "https://github.com/tiliondev/fortress.git" },
+  "homepage": "https://github.com/tiliondev/fortress"
+}

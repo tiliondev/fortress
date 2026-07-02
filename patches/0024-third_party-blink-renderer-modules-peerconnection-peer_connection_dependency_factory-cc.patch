@@ -1,0 +1,37 @@
+diff --git a/third_party/blink/renderer/modules/peerconnection/peer_connection_dependency_factory.cc b/third_party/blink/renderer/modules/peerconnection/peer_connection_dependency_factory.cc
+index 7d641391d1..5d98df3852 100644
+--- a/third_party/blink/renderer/modules/peerconnection/peer_connection_dependency_factory.cc
++++ b/third_party/blink/renderer/modules/peerconnection/peer_connection_dependency_factory.cc
+@@ -3,6 +3,8 @@
+ // found in the LICENSE file.
+ 
+ #include "third_party/blink/renderer/modules/peerconnection/peer_connection_dependency_factory.h"
++#include "base/command_line.h"  // TILION
++#include "base/uxr_config.h"
+ 
+ #include <stddef.h>
+ 
+@@ -1109,6 +1111,23 @@ PeerConnectionDependencyFactory::CreatePortAllocator(
+     }
+   }
+ 
++  // TILION Layer 2: WebRTC IP-leak control via cmdline (coherence rule C11).
++  // Host candidates are already mDNS-obfuscated; this lets the control plane pin
++  // candidate gathering to the proxied path and suppress non-proxied srflx
++  // (public-IP) candidates so a v4-only proxy can't leak the real v6, etc.
++  {
++    if (base::UxrConfig::GetInstance().Has("uxr-webrtc-policy")) {
++      std::string p_pol = base::UxrConfig::GetInstance().Get("uxr-webrtc-policy");
++      allow_mdns_obfuscation = true;
++      if (p_pol == "disable_non_proxied_udp") {
++        port_config.enable_multiple_routes = false;
++        port_config.enable_nonproxied_udp = false;
++      } else if (p_pol == "obfuscate") {
++        port_config.enable_multiple_routes = true;
++        port_config.enable_nonproxied_udp = true;
++      }
++    }
++  }
+   std::unique_ptr<webrtc::NetworkManager> network_manager;
+   if (port_config.enable_multiple_routes) {
+     network_manager = std::make_unique<FilteringNetworkManager>(

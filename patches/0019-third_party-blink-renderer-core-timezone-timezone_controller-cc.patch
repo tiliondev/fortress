@@ -1,0 +1,41 @@
+diff --git a/third_party/blink/renderer/core/timezone/timezone_controller.cc b/third_party/blink/renderer/core/timezone/timezone_controller.cc
+index 48eb8d2fbd..b73b598f86 100644
+--- a/third_party/blink/renderer/core/timezone/timezone_controller.cc
++++ b/third_party/blink/renderer/core/timezone/timezone_controller.cc
+@@ -4,6 +4,8 @@
+ 
+ #include "third_party/blink/renderer/core/timezone/timezone_controller.h"
+ 
++#include "base/command_line.h"  // TILION
++#include "base/uxr_config.h"
+ #include "base/feature_list.h"
+ #include "mojo/public/cpp/bindings/pending_remote.h"
+ #include "mojo/public/cpp/bindings/remote.h"
+@@ -245,12 +247,25 @@ void TimeZoneController::OnTimeZoneChange(const String& timezone_id) {
+ 
+   base::AutoLock locker(instance().lock_);
+ 
++  // TILION Layer 2: pin the persona timezone. The browser TimeZoneMonitor pushes
++  // the HOST tz here; substituting the persona lets the configured choice (tz
++  // matched to the proxy IP, rule C4) survive. This runs with the isolate present,
++  // so SetIcuTimeZoneAndNotifyV8 flushes V8 (the notification an early hook lacks).
++  String effective_id = timezone_id;
++  {
++    if (base::UxrConfig::GetInstance().Has("uxr-timezone")) {
++      String p_tz(base::UxrConfig::GetInstance().Get("uxr-timezone").c_str());
++      if (!p_tz.empty())
++        effective_id = p_tz;
++    }
++  }
++
+   // Remember requested timezone id so we can set it when timezone
+   // override is removed.
+-  instance().host_timezone_id_ = timezone_id;
++  instance().host_timezone_id_ = effective_id;
+ 
+   if (!HasTimeZoneOverride())
+-    SetIcuTimeZoneAndNotifyV8(timezone_id);
++    SetIcuTimeZoneAndNotifyV8(effective_id);
+ }
+ 
+ const String& TimeZoneController::GetHostTimezoneId() {

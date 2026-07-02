@@ -1,0 +1,69 @@
+diff --git a/third_party/blink/renderer/modules/canvas/canvas2d/base_rendering_context_2d.cc b/third_party/blink/renderer/modules/canvas/canvas2d/base_rendering_context_2d.cc
+index d14c4a8f27..deea61d3ce 100644
+--- a/third_party/blink/renderer/modules/canvas/canvas2d/base_rendering_context_2d.cc
++++ b/third_party/blink/renderer/modules/canvas/canvas2d/base_rendering_context_2d.cc
+@@ -2,8 +2,17 @@
+ // Use of this source code is governed by a BSD-style license that can be
+ // found in the LICENSE file.
+ 
++#ifdef UNSAFE_BUFFERS_BUILD
++#pragma allow_unsafe_buffers  // TILION: raw-pixel canvas-noise loop
++#endif
++
+ #include "third_party/blink/renderer/modules/canvas/canvas2d/base_rendering_context_2d.h"
+ 
++#include <cstdlib>  // TILION
++#include "base/command_line.h"  // TILION
++#include "base/strings/string_number_conversions.h"  // TILION
++#include "base/uxr_config.h"
++
+ #include <cmath>
+ #include <cstdint>
+ #include <cstdlib>
+@@ -513,6 +522,46 @@ ImageData* BaseRenderingContext2D::getImageDataInternal(
+     }
+   }
+ 
++  // TILION: seeded per-session canvas noise (+-1 on RGB, keyed to pixel pos).
++  // Defeats canvas fingerprinting; same seed -> same noise (per-session stable).
++  if (image_data) {
++    uint32_t ph_seed = 0u;
++    // TILION canvas noise (audit P0-G/I/J + P2-C): unified StringToUint parse,
++    // FAIL-CLOSED on invalid/zero (no golden-constant fingerprint), value-dependent
++    // + per-channel (defeats the 2025 flat-field pixel-recovery), 8-bit-only.
++    if (base::StringToUint(
++            base::UxrConfig::GetInstance().Get("uxr-canvas-seed"), &ph_seed) &&
++        ph_seed != 0u) {
++      SkPixmap ph_pm = image_data->GetSkPixmap();
++      const SkColorType ph_ct = ph_pm.colorType();
++      uint8_t* ph_px = static_cast<uint8_t*>(ph_pm.writable_addr());
++      if (ph_px && (ph_ct == kRGBA_8888_SkColorType ||
++                    ph_ct == kBGRA_8888_SkColorType)) {
++        const int ph_w = ph_pm.width();
++        const int ph_h = ph_pm.height();
++        const size_t ph_rb = ph_pm.rowBytes();
++        for (int ph_y = 0; ph_y < ph_h; ++ph_y) {
++          uint8_t* ph_row = ph_px + ph_y * ph_rb;
++          for (int ph_x = 0; ph_x < ph_w; ++ph_x) {
++            const uint32_t ax = static_cast<uint32_t>(sx + ph_x);
++            const uint32_t ay = static_cast<uint32_t>(sy + ph_y);
++            for (int ch = 0; ch < 3; ++ch) {
++              const uint32_t v = ph_row[ph_x * 4 + ch];
++              uint32_t z = ph_seed ^ (ax * 374761393u) ^ (ay * 668265263u) ^
++                           (static_cast<uint32_t>(ch) * 0x9e3779b9u) ^
++                           (v * 2654435761u);
++              z ^= z >> 16; z *= 0x85ebca6bu; z ^= z >> 13; z *= 0xc2b2ae35u;
++              z ^= z >> 16;
++              const int nv = static_cast<int>(v) + ((z & 1u) ? 1 : -1);
++              ph_row[ph_x * 4 + ch] =
++                  static_cast<uint8_t>(nv < 0 ? 0 : (nv > 255 ? 255 : nv));
++            }
++          }
++        }
++      }
++    }
++  }
++
+   return image_data;
+ }
+ 

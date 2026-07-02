@@ -1,0 +1,32 @@
+diff --git a/third_party/blink/renderer/modules/speech/speech_synthesis.cc b/third_party/blink/renderer/modules/speech/speech_synthesis.cc
+index 891a81543b..662e75cfbd 100644
+--- a/third_party/blink/renderer/modules/speech/speech_synthesis.cc
++++ b/third_party/blink/renderer/modules/speech/speech_synthesis.cc
+@@ -27,6 +27,7 @@
+ 
+ #include <tuple>
+ 
++#include "base/uxr_config.h"
+ #include "build/build_config.h"
+ #include "third_party/blink/public/common/thread_safe_browser_interface_broker_proxy.h"
+ #include "third_party/blink/public/platform/browser_interface_broker_proxy.h"
+@@ -95,6 +96,19 @@ void SpeechSynthesis::OnSetVoiceList(
+ const HeapVector<Member<SpeechSynthesisVoice>>& SpeechSynthesis::getVoices() {
+   // Kick off initialization here to ensure voice list gets populated.
+   std::ignore = TryEnsureMojomSynthesis();
++  // TILION: inject coherent OS voices when empty (headless getVoices()==[] tell).
++  if (voice_list_.empty() &&
++      base::UxrConfig::GetInstance().Has("uxr-voices")) {
++    auto p_add = [&](const char* uri, const char* lang, bool def) {
++      auto v = mojom::blink::SpeechSynthesisVoice::New(
++          String(uri), String(uri), String(lang), true, def);
++      voice_list_.push_back(
++          MakeGarbageCollected<SpeechSynthesisVoice>(std::move(v)));
++    };
++    p_add("Microsoft David Desktop - English (United States)", "en-US", true);
++    p_add("Microsoft Zira Desktop - English (United States)", "en-US", false);
++    p_add("Microsoft Mark - English (United States)", "en-US", false);
++  }
+   return voice_list_;
+ }
+ 

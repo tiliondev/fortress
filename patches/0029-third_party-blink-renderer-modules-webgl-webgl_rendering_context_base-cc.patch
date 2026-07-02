@@ -1,0 +1,172 @@
+diff --git a/third_party/blink/renderer/modules/webgl/webgl_rendering_context_base.cc b/third_party/blink/renderer/modules/webgl/webgl_rendering_context_base.cc
+index 2df79076df..a238b67b7c 100644
+--- a/third_party/blink/renderer/modules/webgl/webgl_rendering_context_base.cc
++++ b/third_party/blink/renderer/modules/webgl/webgl_rendering_context_base.cc
+@@ -39,6 +39,9 @@
+ #include "base/metrics/histogram_macros.h"
+ #include "base/notimplemented.h"
+ #include "base/numerics/checked_math.h"
++#include "base/command_line.h"  // TILION
++#include "base/uxr_config.h"
++#include "base/strings/string_number_conversions.h"  // TILION
+ #include "base/strings/stringprintf.h"
+ #include "base/synchronization/lock.h"
+ #include "base/task/single_thread_task_runner.h"
+@@ -207,6 +210,38 @@ unsigned WebGLRenderingContextBase::max_active_webgl_contexts_on_worker_ = 0;
+ 
+ namespace {
+ 
++// TILION Layer 2: seeded sub-pixel farble of WebGL readback so the render-hash is
++// non-constant per session and not a known-attributable (SwiftShader) hash. PARTIAL
++// mitigation only: matching a CLAIMED GPU hash still needs a real GPU. Keyed to the
++// shared visual seed --tilion-canvas-seed (same as canvas 2D).
++void UxrFarbleReadPixels(uint8_t* data, size_t n) {
++  if (n == 0u || data == nullptr) {
++    return;
++  }
++  if (!base::UxrConfig::GetInstance().Has("uxr-canvas-seed")) {
++    return;
++  }
++  uint32_t seed = 0u;
++  if (!base::StringToUint(base::UxrConfig::GetInstance().Get("uxr-canvas-seed"), &seed)) {
++    seed = 0u;
++  }
++  if (seed == 0u) {
++    seed = 0x9e3779b9u;
++  }
++  base::span<uint8_t> px = UNSAFE_BUFFERS(base::span<uint8_t>(data, n));
++  for (size_t i = 0; i < n; ++i) {
++    if ((i & 3u) == 3u) continue;  // skip alpha (RGBA); same shape as canvas2D noise
++    const uint32_t ch = static_cast<uint32_t>(i & 3u);
++    const uint32_t v = px[i];
++    uint32_t z = seed ^ (static_cast<uint32_t>(i >> 2) * 374761393u) ^
++                 (ch * 0x9e3779b9u) ^ (v * 2654435761u);  // value-dependent, per-channel
++    z ^= z >> 16; z *= 0x85ebca6bu; z ^= z >> 13; z *= 0xc2b2ae35u;
++    z ^= z >> 16;
++    const int nv = static_cast<int>(v) + ((z & 1u) ? 1 : -1);
++    px[i] = static_cast<uint8_t>(nv < 0 ? 0 : (nv > 255 ? 255 : nv));
++  }
++}
++
+ enum class WebGLANGLEImplementation {
+   // These values are persisted to logs. Entries should not be renumbered and
+   // numeric values should never be reused.
+@@ -3964,6 +3997,34 @@ ScriptValue WebGLRenderingContextBase::getParameter(ScriptState* script_state,
+   if (isContextLost())
+     return ScriptValue::CreateNull(script_state->GetIsolate());
+   const int kIntZero = 0;
++  // TILION patch #3b: coherent WebGL persona (full-params, not string-only).
++  // Detectors read the numeric getParameter limits and cross-check them vs the
++  // renderer string (rules C2/C3). When --tilion-webgl-fullparams is set we return
++  // values coherent with a real NVIDIA desktop GPU (ANGLE-D3D11).
++  {
++    if ((base::UxrConfig::GetInstance().Has("uxr-webgl-fullparams") || base::UxrConfig::GetInstance().Has("uxr-webgl-renderer"))) {
++      switch (pname) {
++        case GL_MAX_TEXTURE_SIZE:
++        case GL_MAX_CUBE_MAP_TEXTURE_SIZE:
++        case GL_MAX_RENDERBUFFER_SIZE:
++          return WebGLAny(script_state, 16384);
++        case GL_MAX_VERTEX_ATTRIBS:
++        case GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS:
++        case GL_MAX_TEXTURE_IMAGE_UNITS:
++          return WebGLAny(script_state, 16);
++        case GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS:
++          return WebGLAny(script_state, 32);
++        case GL_MAX_VERTEX_UNIFORM_VECTORS:
++          return WebGLAny(script_state, 4096);
++        case GL_MAX_VARYING_VECTORS:
++          return WebGLAny(script_state, 30);
++        case GL_MAX_FRAGMENT_UNIFORM_VECTORS:
++          return WebGLAny(script_state, 1024);
++        default:
++          break;
++      }
++    }
++  }
+   switch (pname) {
+     case GL_ACTIVE_TEXTURE:
+       return GetUnsignedIntParameter(script_state, pname);
+@@ -4094,6 +4155,12 @@ ScriptValue WebGLRenderingContextBase::getParameter(ScriptState* script_state,
+     case GL_SCISSOR_TEST:
+       return GetBooleanParameter(script_state, pname);
+     case GL_SHADING_LANGUAGE_VERSION:
++      {
++        // TILION: kill real-backend GLSL leak; match real Chrome normalized form.
++        if ((base::UxrConfig::GetInstance().Has("uxr-webgl-fullparams") || base::UxrConfig::GetInstance().Has("uxr-webgl-renderer")))
++          return WebGLAny(script_state,
++              String("WebGL GLSL ES 1.0 (OpenGL ES GLSL ES 1.0 Chromium)"));
++      }
+       return WebGLAny(
+           script_state,
+           StrCat({"WebGL GLSL ES 1.0 (",
+@@ -4156,6 +4223,12 @@ ScriptValue WebGLRenderingContextBase::getParameter(ScriptState* script_state,
+     case GL_VENDOR:
+       return WebGLAny(script_state, String("WebKit"));
+     case GL_VERSION:
++      {
++        // TILION: kill real-backend driver leak (SwiftShader/host GL). Real Chrome
++        // reports the normalized "OpenGL ES 2.0 Chromium" form regardless of GPU.
++        if ((base::UxrConfig::GetInstance().Has("uxr-webgl-fullparams") || base::UxrConfig::GetInstance().Has("uxr-webgl-renderer")))
++          return WebGLAny(script_state, String("WebGL 1.0 (OpenGL ES 2.0 Chromium)"));
++      }
+       return WebGLAny(
+           script_state,
+           StrCat({"WebGL 1.0 (", String(ContextGL()->GetString(GL_VERSION)),
+@@ -4172,8 +4245,15 @@ ScriptValue WebGLRenderingContextBase::getParameter(ScriptState* script_state,
+       return ScriptValue::CreateNull(script_state->GetIsolate());
+     case WebGLDebugRendererInfo::kUnmaskedRendererWebgl:
+       if (ExtensionEnabled(kWebGLDebugRendererInfoName)) {
+-        return WebGLAny(script_state,
+-                        String(ContextGL()->GetString(GL_RENDERER)));
++        // TILION patch #3: switch-driven renderer (dynamic persona).
++        {
++          if (base::UxrConfig::GetInstance().Has("uxr-webgl-renderer"))
++            return WebGLAny(script_state, String(base::UxrConfig::GetInstance().Get("uxr-webgl-renderer").c_str()));
++        }
++        return WebGLAny(
++            script_state,
++            String("ANGLE (NVIDIA, NVIDIA GeForce RTX 3060 Direct3D11 vs_5_0 "
++                   "ps_5_0, D3D11)"));
+       }
+       SynthesizeGLError(
+           GL_INVALID_ENUM, "getParameter",
+@@ -4181,8 +4261,12 @@ ScriptValue WebGLRenderingContextBase::getParameter(ScriptState* script_state,
+       return ScriptValue::CreateNull(script_state->GetIsolate());
+     case WebGLDebugRendererInfo::kUnmaskedVendorWebgl:
+       if (ExtensionEnabled(kWebGLDebugRendererInfoName)) {
+-        return WebGLAny(script_state,
+-                        String(ContextGL()->GetString(GL_VENDOR)));
++        // TILION patch #3: switch-driven vendor (dynamic persona).
++        {
++          if (base::UxrConfig::GetInstance().Has("uxr-webgl-vendor"))
++            return WebGLAny(script_state, String(base::UxrConfig::GetInstance().Get("uxr-webgl-vendor").c_str()));
++        }
++        return WebGLAny(script_state, String("Google Inc. (NVIDIA Corporation)"));
+       }
+       SynthesizeGLError(
+           GL_INVALID_ENUM, "getParameter",
+@@ -4478,6 +4562,16 @@ WebGLShaderPrecisionFormat* WebGLRenderingContextBase::getShaderPrecisionFormat(
+       return nullptr;
+   }
+ 
++  // TILION: real-NVIDIA-desktop precision when persona active (float 127/127/23,
++  // int 31/30/0). Detectors hash getShaderPrecisionFormat alongside the GPU string.
++  if (base::UxrConfig::GetInstance().Has("uxr-webgl-fullparams") ||
++      base::UxrConfig::GetInstance().Has("uxr-webgl-renderer")) {
++    const bool p_is_float = precision_type == GL_LOW_FLOAT ||
++                            precision_type == GL_MEDIUM_FLOAT ||
++                            precision_type == GL_HIGH_FLOAT;
++    return MakeGarbageCollected<WebGLShaderPrecisionFormat>(
++        p_is_float ? 127 : 31, p_is_float ? 127 : 30, p_is_float ? 23 : 0);
++  }
+   GLint range[2] = {0, 0};
+   GLint precision = 0;
+   ContextGL()->GetShaderPrecisionFormat(shader_type, precision_type, range,
+@@ -5327,6 +5421,7 @@ void WebGLRenderingContextBase::ReadPixelsHelper(GLint x,
+       return;
+     }
+     ContextGL()->ReadPixels(x, y, width, height, format, type, data);
++    UxrFarbleReadPixels(data, static_cast<size_t>(buffer_size.ValueOrDie()));  // TILION
+   }
+ }
+ 

@@ -1,0 +1,38 @@
+diff --git a/third_party/blink/renderer/modules/mediastream/media_devices.cc b/third_party/blink/renderer/modules/mediastream/media_devices.cc
+index b74ee0e251..16a0c91e09 100644
+--- a/third_party/blink/renderer/modules/mediastream/media_devices.cc
++++ b/third_party/blink/renderer/modules/mediastream/media_devices.cc
+@@ -3,6 +3,7 @@
+ // found in the LICENSE file.
+ 
+ #include "third_party/blink/renderer/modules/mediastream/media_devices.h"
++#include "base/uxr_config.h"
+ 
+ #include <algorithm>
+ #include <utility>
+@@ -1482,6 +1483,25 @@ void MediaDevices::DevicesEnumerated(
+     }
+   }
+ 
++  // TILION: inject a coherent desktop device set when the real enumeration is
++  // empty (headless reports 0 devices = a strong tell). Pre-permission shape:
++  // empty deviceId/label/groupId; input kinds use InputDeviceInfo.
++  if (media_devices.empty() &&
++      base::UxrConfig::GetInstance().Has("uxr-media-devices")) {
++    std::string p_spec = base::UxrConfig::GetInstance().Get("uxr-media-devices");
++    // TILION P0-L: push in mojom enum order audioinput(0)->videoinput(1)->audiooutput(2).
++    media_devices.push_back(MakeGarbageCollected<InputDeviceInfo>(
++        g_empty_string, g_empty_string, g_empty_string,
++        mojom::blink::MediaDeviceType::kMediaAudioInput));
++    if (p_spec.find("cam") != std::string::npos) {
++      media_devices.push_back(MakeGarbageCollected<InputDeviceInfo>(
++          g_empty_string, g_empty_string, g_empty_string,
++          mojom::blink::MediaDeviceType::kMediaVideoInput));
++    }
++    media_devices.push_back(MakeGarbageCollected<MediaDeviceInfo>(
++        g_empty_string, g_empty_string, g_empty_string,
++        mojom::blink::MediaDeviceType::kMediaAudioOutput));
++  }
+   ReportCompletedEnumerateDevices(result_contains_nonempty_input_device_ids);
+   result_tracker->Resolve(media_devices);
+   tracer->End();

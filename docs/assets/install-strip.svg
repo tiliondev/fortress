@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 132" width="1200" height="132" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" role="img" aria-label="pip install tilion-fortress — CreepJS 0%, Sannysoft all-green, BrowserScan human">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0B0F17"/>
+      <stop offset="1" stop-color="#0A0D14"/>
+    </linearGradient>
+  </defs>
+
+  <!-- terminal window -->
+  <rect x="8" y="8" width="1184" height="116" rx="12" fill="url(#bg)" stroke="#1B2431" stroke-width="1.5"/>
+  <rect x="8" y="8" width="1184" height="34" rx="12" fill="#0E1420"/>
+  <rect x="8" y="30" width="1184" height="12" fill="#0E1420"/>
+  <circle cx="30" cy="25" r="5" fill="#FF5F56"/><circle cx="48" cy="25" r="5" fill="#FFBD2E"/><circle cx="66" cy="25" r="5" fill="#27C93F"/>
+  <text x="600" y="29" text-anchor="middle" fill="#5B677A" font-size="12">tilion-fortress</text>
+
+  <!-- typed command (visible at rest) + blinking cursor -->
+  <text x="40" y="76" fill="#3FB950" font-size="19">$</text>
+  <text x="62" y="76" fill="#E6EDF3" font-size="19">pip install tilion-fortress</text>
+  <rect x="386" y="60" width="10" height="20" fill="#4ADE80">
+    <animate attributeName="opacity" values="1;1;0;0" keyTimes="0;0.5;0.51;1" dur="1.05s" repeatCount="indefinite"/>
+  </rect>
+
+  <!-- green proof chips (visible at rest; gentle staggered pulse) -->
+  <g font-size="14" fill="#C9D4E3">
+    <g><circle cx="620" cy="70" r="5" fill="#3FB950"><animate attributeName="opacity" values="0.55;1;0.55" dur="2.4s" begin="0s" repeatCount="indefinite"/></circle><text x="634" y="75">CreepJS 0% headless</text></g>
+    <g><circle cx="810" cy="70" r="5" fill="#3FB950"><animate attributeName="opacity" values="0.55;1;0.55" dur="2.4s" begin="0.8s" repeatCount="indefinite"/></circle><text x="824" y="75">Sannysoft all-green</text></g>
+    <g><circle cx="1000" cy="70" r="5" fill="#3FB950"><animate attributeName="opacity" values="0.55;1;0.55" dur="2.4s" begin="1.6s" repeatCount="indefinite"/></circle><text x="1014" y="75">BrowserScan “human”</text></g>
+  </g>
+
+  <!-- bottom accent sweep -->
+  <rect x="8" y="121" width="1184" height="3" fill="#12351F"/>
+  <rect x="8" y="121" width="220" height="3" fill="#4ADE80">
+    <animate attributeName="x" values="8;964;8" dur="6s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.3;1;0.3" dur="6s" repeatCount="indefinite"/>
+  </rect>
+</svg>

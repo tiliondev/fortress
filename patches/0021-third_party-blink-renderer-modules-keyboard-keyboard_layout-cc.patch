@@ -1,0 +1,80 @@
+diff --git a/third_party/blink/renderer/modules/keyboard/keyboard_layout.cc b/third_party/blink/renderer/modules/keyboard/keyboard_layout.cc
+index e2b697b768..98161f2604 100644
+--- a/third_party/blink/renderer/modules/keyboard/keyboard_layout.cc
++++ b/third_party/blink/renderer/modules/keyboard/keyboard_layout.cc
+@@ -3,6 +3,7 @@
+ // found in the LICENSE file.
+ 
+ #include "third_party/blink/renderer/modules/keyboard/keyboard_layout.h"
++#include "base/uxr_config.h"
+ 
+ #include "third_party/blink/public/platform/browser_interface_broker_proxy.h"
+ #include "third_party/blink/public/platform/platform.h"
+@@ -92,10 +93,66 @@ void KeyboardLayout::GotKeyboardLayoutMap(
+   is_request_pending_ = false;
+ 
+   switch (result->status) {
+-    case mojom::blink::GetKeyboardLayoutMapStatus::kSuccess:
++    case mojom::blink::GetKeyboardLayoutMapStatus::kSuccess: {
++      // TILION: inject a coherent en-US layout when the OS map is empty (headless
++      // getLayoutMap()=={} is a sleeper tell leaking OS-locale absence).
++      if (base::UxrConfig::GetInstance().Has("uxr-keyboard-layout")) {
++        HashMap<String, String> p_map;
++        p_map.Set(String("KeyA"), String("a"));
++        p_map.Set(String("KeyB"), String("b"));
++        p_map.Set(String("KeyC"), String("c"));
++        p_map.Set(String("KeyD"), String("d"));
++        p_map.Set(String("KeyE"), String("e"));
++        p_map.Set(String("KeyF"), String("f"));
++        p_map.Set(String("KeyG"), String("g"));
++        p_map.Set(String("KeyH"), String("h"));
++        p_map.Set(String("KeyI"), String("i"));
++        p_map.Set(String("KeyJ"), String("j"));
++        p_map.Set(String("KeyK"), String("k"));
++        p_map.Set(String("KeyL"), String("l"));
++        p_map.Set(String("KeyM"), String("m"));
++        p_map.Set(String("KeyN"), String("n"));
++        p_map.Set(String("KeyO"), String("o"));
++        p_map.Set(String("KeyP"), String("p"));
++        p_map.Set(String("KeyQ"), String("q"));
++        p_map.Set(String("KeyR"), String("r"));
++        p_map.Set(String("KeyS"), String("s"));
++        p_map.Set(String("KeyT"), String("t"));
++        p_map.Set(String("KeyU"), String("u"));
++        p_map.Set(String("KeyV"), String("v"));
++        p_map.Set(String("KeyW"), String("w"));
++        p_map.Set(String("KeyX"), String("x"));
++        p_map.Set(String("KeyY"), String("y"));
++        p_map.Set(String("KeyZ"), String("z"));
++        p_map.Set(String("Digit1"), String("1"));
++        p_map.Set(String("Digit2"), String("2"));
++        p_map.Set(String("Digit3"), String("3"));
++        p_map.Set(String("Digit4"), String("4"));
++        p_map.Set(String("Digit5"), String("5"));
++        p_map.Set(String("Digit6"), String("6"));
++        p_map.Set(String("Digit7"), String("7"));
++        p_map.Set(String("Digit8"), String("8"));
++        p_map.Set(String("Digit9"), String("9"));
++        p_map.Set(String("Digit0"), String("0"));
++        p_map.Set(String("Backquote"), String("`"));
++        p_map.Set(String("Minus"), String("-"));
++        p_map.Set(String("Equal"), String("="));
++        p_map.Set(String("BracketLeft"), String("["));
++        p_map.Set(String("BracketRight"), String("]"));
++        p_map.Set(String("Backslash"), String("\\"));
++        p_map.Set(String("Semicolon"), String(";"));
++        p_map.Set(String("Quote"), String("'"));
++        p_map.Set(String("Comma"), String(","));
++        p_map.Set(String("Period"), String("."));
++        p_map.Set(String("Slash"), String("/"));
++        layout_map_property_->Resolve(
++            MakeGarbageCollected<KeyboardLayoutMap>(p_map));
++        break;
++      }
+       layout_map_property_->Resolve(
+           MakeGarbageCollected<KeyboardLayoutMap>(result->layout_map));
+       break;
++    }
+     case mojom::blink::GetKeyboardLayoutMapStatus::kFail:
+       layout_map_property_->Reject(MakeGarbageCollected<DOMException>(
+           DOMExceptionCode::kInvalidStateError,

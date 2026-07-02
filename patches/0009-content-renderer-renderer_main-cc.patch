@@ -1,0 +1,26 @@
+diff --git a/content/renderer/renderer_main.cc b/content/renderer/renderer_main.cc
+index af0bc473a0..d2dca676bc 100644
+--- a/content/renderer/renderer_main.cc
++++ b/content/renderer/renderer_main.cc
+@@ -89,6 +89,13 @@
+ #include "mojo/public/cpp/bindings/lib/test_random_mojo_delays.h"
+ #endif
+ 
++#include "third_party/icu/source/i18n/unicode/timezone.h"
++#include "third_party/icu/source/common/unicode/unistr.h"
++
++#include <stdlib.h>
++#include <time.h>
++#include <memory>
++
+ namespace content {
+ namespace {
+ 
+@@ -157,6 +164,7 @@ int RendererMain(MainFunctionParams parameters) {
+ 
+   const base::CommandLine& command_line = *parameters.command_line;
+ 
++
+ #if BUILDFLAG(IS_MAC)
+   base::apple::ScopedNSAutoreleasePool* pool = parameters.autorelease_pool;
+ #endif  // BUILDFLAG(IS_MAC)

@@ -1,0 +1,68 @@
+diff --git a/third_party/blink/renderer/modules/webaudio/audio_buffer.cc b/third_party/blink/renderer/modules/webaudio/audio_buffer.cc
+index bc4c0c6ca0..91890c216a 100644
+--- a/third_party/blink/renderer/modules/webaudio/audio_buffer.cc
++++ b/third_party/blink/renderer/modules/webaudio/audio_buffer.cc
+@@ -40,6 +40,10 @@
+ #include "third_party/blink/renderer/platform/bindings/exception_state.h"
+ #include "third_party/blink/renderer/platform/wtf/text/strcat.h"
+ 
++#include "base/strings/string_number_conversions.h"  // TILION
++#include "base/command_line.h"  // TILION
++#include "base/uxr_config.h"
++
+ namespace blink {
+ 
+ namespace {
+@@ -213,6 +217,7 @@ NotShared<DOMFloat32Array> AudioBuffer::getChannelData(
+     return NotShared<DOMFloat32Array>(nullptr);
+   }
+ 
++  MaybeFarbleForUxr();
+   return getChannelData(channel_index);
+ }
+ 
+@@ -253,6 +258,7 @@ void AudioBuffer::copyFromChannel(NotShared<DOMFloat32Array> destination,
+ 
+   base::span<const float> src = channels_[channel_number].Get()->AsSpan();
+   base::span<float> dst = destination->AsSpan();
++  MaybeFarbleForUxr();
+ 
+   // We don't need to copy anything if a) the buffer offset is past the end of
+   // the AudioBuffer or b) the internal `Data()` of is a zero-length
+@@ -342,4 +348,36 @@ void SharedAudioBuffer::Zero() {
+   }
+ }
+ 
++
++void AudioBuffer::MaybeFarbleForUxr() {
++  if (uxr_audio_farbled_) {
++    return;
++  }
++  if (!base::UxrConfig::GetInstance().Has("uxr-audio-seed")) {
++    return;
++  }
++  uxr_audio_farbled_ = true;  // farble once; repeated reads stay stable
++  uint32_t seed = 0u;
++  if (!base::StringToUint(base::UxrConfig::GetInstance().Get("uxr-audio-seed"), &seed)) {
++    seed = 0u;
++  }
++  if (seed == 0u) {
++    seed = 0x9e3779b9u;
++  }
++  for (unsigned c = 0; c < channels_.size(); ++c) {
++    if (!channels_[c]) {
++      continue;
++    }
++    base::span<float> data = channels_[c]->AsSpan();
++    uint32_t st = seed ^ (c * 0x85ebca6bu + 0x165667b1u);
++    for (size_t i = 0; i < data.size(); ++i) {
++      st ^= st << 13;
++      st ^= st >> 17;
++      st ^= st << 5;
++      float r = (st & 0xFFFFFFu) / static_cast<float>(0x1000000);
++      data[i] += (r - 0.5f) * 2.0e-7f;  // sub-perceptual, deterministic per seed
++    }
++  }
++}
++
+ }  // namespace blink

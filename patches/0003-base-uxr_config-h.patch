@@ -1,0 +1,52 @@
+diff --git a/base/uxr_config.h b/base/uxr_config.h
+new file mode 100644
+index 0000000000..6eead77d0f
+--- /dev/null
++++ b/base/uxr_config.h
+@@ -0,0 +1,46 @@
++// Copyright 2026. Process-global persona config delivered to the renderer over
++// IPC (NOT the command line) so persona values + seeds never appear in the
++// renderer's /proc/cmdline. Populated once at renderer init; read-only after.
++#ifndef BASE_UXR_CONFIG_H_
++#define BASE_UXR_CONFIG_H_
++
++#include <map>
++#include <string>
++
++#include "base/base_export.h"
++#include "base/containers/flat_map.h"
++#include "base/synchronization/lock.h"
++
++namespace base {
++
++template <typename T>
++class NoDestructor;
++
++class BASE_EXPORT UxrConfig {
++ public:
++  static UxrConfig& GetInstance();
++
++  UxrConfig(const UxrConfig&) = delete;
++  UxrConfig& operator=(const UxrConfig&) = delete;
++
++  // Called once in the renderer from the browser-delivered IPC message.
++  void SetAll(const flat_map<std::string, std::string>& cfg);
++
++  bool Has(const std::string& key) const;
++  // Returns the value or "" if absent.
++  std::string Get(const std::string& key) const;
++  // Parses the value as an int; returns false if absent or unparseable.
++  bool GetInt(const std::string& key, int* out) const;
++
++ private:
++  friend class NoDestructor<UxrConfig>;
++  UxrConfig();
++  ~UxrConfig();
++
++  mutable Lock lock_;
++  flat_map<std::string, std::string> map_;
++};
++
++}  // namespace base
++
++#endif  // BASE_UXR_CONFIG_H_

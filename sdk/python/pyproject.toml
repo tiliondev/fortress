@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tilion-fortress"
+version = "151.0.7908.0"
+description = "Install and drive the Fortress stealth Chromium engine. Prebuilt binary, no source."
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "BSD-3-Clause" }
+authors = [{ name = "arham766" }]
+keywords = ["chromium", "stealth", "browser", "automation", "anti-bot", "fortress", "tilion"]
+
+[project.urls]
+Homepage = "https://github.com/tiliondev/fortress"
+Source = "https://github.com/tiliondev/fortress"
+
+[project.scripts]
+tilion-fortress = "tilion_fortress.__main__:main"
+
+[tool.setuptools]
+packages = ["tilion_fortress"]

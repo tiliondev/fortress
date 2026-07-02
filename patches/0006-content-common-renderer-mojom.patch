@@ -1,0 +1,13 @@
+diff --git a/content/common/renderer.mojom b/content/common/renderer.mojom
+index 2955d7d1cd..9ef074a880 100644
+--- a/content/common/renderer.mojom
++++ b/content/common/renderer.mojom
+@@ -179,4 +179,8 @@ interface Renderer {
+                      blink.mojom.OriginTrialsSettings? origin_trials_settings,
+                      blink.mojom.PerformanceTier cpu_performance_tier,
+                      uint64 trace_id);
++
++  // UXR persona config delivered out-of-band (NOT via the renderer command
++  // line) so persona values + seeds never appear in /proc/<renderer>/cmdline.
++  SetUxrConfig(map<string, string> config);
+ };

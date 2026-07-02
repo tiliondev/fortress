@@ -1,0 +1,44 @@
+diff --git a/third_party/blink/renderer/modules/quota/storage_manager.cc b/third_party/blink/renderer/modules/quota/storage_manager.cc
+index ef1c723ac2..ae8f79fcf7 100644
+--- a/third_party/blink/renderer/modules/quota/storage_manager.cc
++++ b/third_party/blink/renderer/modules/quota/storage_manager.cc
+@@ -4,6 +4,9 @@
+ 
+ #include "third_party/blink/renderer/modules/quota/storage_manager.h"
+ 
++#include "base/strings/string_number_conversions.h"  // TILION
++#include "base/uxr_config.h"                          // TILION
++
+ #include "mojo/public/cpp/bindings/callback_helpers.h"
+ #include "third_party/blink/public/mojom/permissions/permission_status.mojom-blink.h"
+ #include "third_party/blink/public/mojom/quota/quota_types.mojom-blink.h"
+@@ -70,6 +73,29 @@ void QueryStorageUsageAndQuotaCallback(
+ 
+   StorageEstimate* estimate = StorageEstimate::Create();
+   estimate->setUsage(usage_in_bytes);
++
++  // TILION: headless/sandbox reports a flat ~10GB quota — a fingerprint tell. Report a
++  // realistic, non-round, disk-proportional quota: an explicit persona value if given,
++  // else a stable value derived from the canvas seed (~128-223GB). Fail-closed: no seed
++  // and no override -> leave the real value untouched.
++  {
++    base::UxrConfig& ph_cfg = base::UxrConfig::GetInstance();
++    uint64_t ph_q = 0;
++    if (ph_cfg.Has("uxr-storage-quota") &&
++        base::StringToUint64(ph_cfg.Get("uxr-storage-quota"), &ph_q) && ph_q > 0) {
++      quota_in_bytes = static_cast<int64_t>(ph_q);
++    } else {
++      uint32_t ph_seed = 0;
++      if (ph_cfg.Has("uxr-canvas-seed"))
++        base::StringToUint(ph_cfg.Get("uxr-canvas-seed"), &ph_seed);
++      if (ph_seed != 0u) {
++        const uint64_t gb = 1024ull * 1024 * 1024;
++        uint64_t extra = static_cast<uint64_t>(ph_seed) % 96u;                 // +0..95 GB
++        uint64_t sub = (static_cast<uint64_t>(ph_seed) * 2654435761u) % gb;    // non-round sub-GB
++        quota_in_bytes = static_cast<int64_t>(128ull * gb + extra * gb + sub);
++      }
++    }
++  }
+   estimate->setQuota(quota_in_bytes);
+ 
+   // We only want to show usage details for systems that are used by the app,

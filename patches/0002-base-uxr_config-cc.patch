@@ -1,0 +1,49 @@
+diff --git a/base/uxr_config.cc b/base/uxr_config.cc
+new file mode 100644
+index 0000000000..cac1a6896b
+--- /dev/null
++++ b/base/uxr_config.cc
+@@ -0,0 +1,43 @@
++// Copyright 2026.
++#include "base/uxr_config.h"
++
++#include "base/no_destructor.h"
++#include "base/strings/string_number_conversions.h"
++
++namespace base {
++
++UxrConfig::UxrConfig() = default;
++UxrConfig::~UxrConfig() = default;
++
++// static
++UxrConfig& UxrConfig::GetInstance() {
++  static NoDestructor<UxrConfig> instance;
++  return *instance;
++}
++
++void UxrConfig::SetAll(const flat_map<std::string, std::string>& cfg) {
++  AutoLock locker(lock_);
++  map_ = cfg;
++}
++
++bool UxrConfig::Has(const std::string& key) const {
++  AutoLock locker(lock_);
++  return map_.contains(key);
++}
++
++std::string UxrConfig::Get(const std::string& key) const {
++  AutoLock locker(lock_);
++  auto it = map_.find(key);
++  return it == map_.end() ? std::string() : it->second;
++}
++
++bool UxrConfig::GetInt(const std::string& key, int* out) const {
++  AutoLock locker(lock_);
++  auto it = map_.find(key);
++  if (it == map_.end()) {
++    return false;
++  }
++  return StringToInt(it->second, out);
++}
++
++}  // namespace base
