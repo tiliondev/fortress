@@ -86,7 +86,7 @@ One binary, a **coherence-checked** Windows identity; `--uxr-*` switches overrid
 | **[Proof — live-detector results](#proof--live-detector-results)** | CreepJS / Sannysoft / BrowserScan / Cloudflare, with screenshots |
 | **[Configure the persona](#configure-the-persona)** | the `--uxr-*` fingerprint surface |
 | **[Works with your stack](#works-with-your-stack)** | browser-use · Crawl4AI · Stagehand · LangChain |
-| **[Build &amp; verify](#build--verify)** | reproduce from source, verify provenance |
+| **[Build & verify](#build--verify)** | reproduce from source, verify provenance |
 | **[Reference](#reference)** | troubleshooting · FAQ · roadmap · repo layout |
 
 ---
@@ -290,7 +290,7 @@ with sync_playwright() as p:
 
 ---
 
-## Build &amp; verify
+## Build & verify
 
 ### Reproduce from source
 
