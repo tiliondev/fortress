@@ -1,0 +1,27 @@
+# https://pre-commit.com — run the same cheap gates as CI before every commit.
+#   pip install pre-commit && pre-commit install
+minimum_pre_commit_version: "3.0.0"
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: ^patches/          # patches are verbatim diffs
+      - id: end-of-file-fixer
+        exclude: ^patches/
+      - id: check-yaml
+      - id: check-json
+      - id: check-merge-conflict
+      - id: mixed-line-ending
+        args: [--fix=lf]
+        exclude: '\.(cmd|ps1)$'
+
+  - repo: local
+    hooks:
+      - id: check-patches
+        name: patch-set integrity linter
+        entry: python tools/check_patches.py
+        language: system
+        pass_filenames: false
+        files: ^patches/
