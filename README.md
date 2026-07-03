@@ -122,6 +122,23 @@ await browser.close();
 await f.close();
 ```
 
+<div align="center">
+
+### See it work — real scraping, fully headless
+
+<sub>Unedited captures of the Fortress engine driven over CDP. No stealth plugins, no JS patches — the fingerprint is corrected in the binary. Reproduce any of these with <a href="examples/scrape_demos.py"><code>examples/scrape_demos.py</code></a>.</sub>
+
+<img src="docs/assets/fortress-scrape-structured.gif" width="720" alt="Fortress extracting books.toscrape.com into typed JSON records live over CDP"/>
+
+<sub><b>Structured extraction</b> — records build into typed JSON as each item is read.</sub>
+
+<table><tr>
+<td align="center" width="50%"><img src="docs/assets/fortress-scrape-paginated.gif" width="358" alt="Fortress auto-paginating across pages of quotes.toscrape.com"/><br/><sub><b>Auto-pagination</b> — 30 quotes across 3 pages.</sub></td>
+<td align="center" width="50%"><img src="docs/assets/fortress-scrape-detail.gif" width="358" alt="Fortress deep-crawling a product detail page"/><br/><sub><b>Deep detail crawl</b> — UPC · price · tax · stock · reviews.</sub></td>
+</tr></table>
+
+</div>
+
 ---
 
 ## Quick start
