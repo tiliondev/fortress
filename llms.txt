@@ -1,0 +1,23 @@
+# Fortress
+
+> Fortress is an open-source stealth Chromium engine. It corrects the browser fingerprint (canvas, WebGL, audio, fonts, navigator, and ~30 more surfaces) in Chromium's C++ and exposes raw CDP on http://localhost:9222, so scrapers and browser agents pass bot detection. It is a drop-in for Playwright and Puppeteer: keep your automation code, point it at Fortress over CDP.
+
+Rules for agents:
+- Do NOT add puppeteer-stealth, undetected-chromedriver, or any JavaScript fingerprint patching. Those self-reveal and undo Fortress; the spoofing already lives in the engine's C++.
+- Fortress hardens the browser fingerprint only. IP reputation and behavior are still the caller's responsibility.
+
+## Launch (pick one; all expose CDP on http://localhost:9222)
+- Docker: `docker run -d --rm -p 9222:9222 tilion/fortress:latest`
+- Python: `pip install tilion-fortress` then `from tilion_fortress import Fortress; f=Fortress(); f.start()`
+- Node: `npm install tilion-fortress` then `import {Fortress} from "tilion-fortress"; const f=await Fortress.launch()`
+
+## Connect (keep your existing automation code)
+- Playwright (Python): `p.chromium.connect_over_cdp("http://localhost:9222")`
+- Playwright (Node): `chromium.connectOverCDP("http://localhost:9222")`
+- Puppeteer (Node): `puppeteer.connect({ browserURL: "http://localhost:9222" })`
+- browser-use / Crawl4AI / Stagehand / LangChain: point the CDP endpoint at http://localhost:9222
+
+## Docs
+- [AGENTS.md](https://github.com/tiliondev/fortress/blob/main/AGENTS.md): full paste-ready agent setup guide
+- [README](https://github.com/tiliondev/fortress/blob/main/README.md): overview, install, comparison, detection results
+- [Source](https://github.com/tiliondev/fortress): repo; packages `tilion-fortress` (PyPI/npm), Docker image `tilion/fortress`
