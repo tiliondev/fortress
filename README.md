@@ -460,7 +460,7 @@ BSD-3-Clause for the Fortress patches and tooling (matching Chromium). Chromium 
 
 Detection keeps moving, so a stealth engine is only as good as its last rebase. Fortress tracks the latest Chromium monthly, re-runs the full gauntlet, and ships a patch whenever a detector finds a new tell, so what you run keeps matching what a real Chrome install looks like. [Watch the releases](https://github.com/tiliondev/fortress/releases) to follow the `v2` MaskConfig work, or [star the repo](https://github.com/tiliondev/fortress/stargazers) if it's useful to you.
 
-<a href="https://www.star-history.com/?repos=tiliondev%2Ffortress&type=date&logscale=&legend=bottom-right">
+<a href="https://www.star-history.com/?repos=tiliondev%2Ffortress&type=date&logscale=&legend=top-left">
  <picture>
    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=tiliondev/fortress&type=date&theme=dark&logscale&legend=top-left" />
    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=tiliondev/fortress&type=date&logscale&legend=top-left" />
