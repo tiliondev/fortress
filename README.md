@@ -7,19 +7,13 @@
 
 Stealth Chromium engine
 
+[![Chromium](https://img.shields.io/badge/chromium-151.0.7908.0-4285F4?logo=googlechrome&logoColor=white)](CHROMIUM_VERSION) [![pip](https://img.shields.io/badge/pip-3776AB?logo=pypi&logoColor=white)](https://pypi.org/project/tilion-fortress/) [![npm](https://img.shields.io/badge/npm-CB3837?logo=npm&logoColor=white)](https://www.npmjs.com/package/tilion-fortress) [![Docker pulls](https://img.shields.io/docker/pulls/tilion/fortress?logo=docker&logoColor=white&label=pulls)](https://hub.docker.com/r/tilion/fortress)<br/>
+[![CreepJS](https://img.shields.io/badge/CreepJS-0%25%20headless-2ea44f)](docs/GAUNTLET_RESULTS.md) [![Runtime.enable leak](https://img.shields.io/badge/Runtime.enable-no%20leak-2ea44f)](docs/GAUNTLET_RESULTS.md)<br/>
+[![Copy for agent](https://img.shields.io/badge/Copy%20for%20agent-24292f?logo=readme&logoColor=white)](https://raw.githubusercontent.com/tiliondev/fortress/main/AGENTS.md) [![llms.txt](https://img.shields.io/badge/llms.txt-24292f?logo=readme&logoColor=white)](https://raw.githubusercontent.com/tiliondev/fortress/main/llms.txt)
+
 **Fortress is a stealth Chromium engine that stops your scrapers and browser agents from getting blocked, with one line of code change.** Bot detectors flag automation by reading the browser fingerprint; Fortress corrects that fingerprint inside Chromium's C++, so the browser presents as an ordinary Chrome install. Scrapers finish their runs, agents reach the pages they were sent to, and CreepJS, Sannysoft, BrowserScan, and live Cloudflare Turnstile all read it as human. Point your existing Playwright or Puppeteer at Fortress over CDP, and nothing else in your code changes.
 
 <sub>**Blink · V8 · BoringSSL** patched in-tree · **ANGLE / D3D11**-backed WebGL · **JA3/JA4-coherent** TLS · **monthly** upstream rebase · **reproducible, gauntlet-gated** releases</sub>
-
-[![Chromium](https://img.shields.io/badge/chromium-151.0.7908.0-4285F4?logo=googlechrome&logoColor=white)](CHROMIUM_VERSION)
-[![pip](https://img.shields.io/badge/pip-3776AB?logo=pypi&logoColor=white)](https://pypi.org/project/tilion-fortress/)
-[![npm](https://img.shields.io/badge/npm-CB3837?logo=npm&logoColor=white)](https://www.npmjs.com/package/tilion-fortress)
-[![Docker pulls](https://img.shields.io/docker/pulls/tilion/fortress?logo=docker&logoColor=white&label=pulls)](https://hub.docker.com/r/tilion/fortress)
-
-[![CreepJS](https://img.shields.io/badge/CreepJS-0%25%20headless-2ea44f)](docs/GAUNTLET_RESULTS.md)
-[![Runtime.enable leak](https://img.shields.io/badge/Runtime.enable-no%20leak-2ea44f)](docs/GAUNTLET_RESULTS.md)
-
-[![Copy for agent](https://img.shields.io/badge/Copy%20for%20agent-24292f?logo=readme&logoColor=white)](https://raw.githubusercontent.com/tiliondev/fortress/main/AGENTS.md) [![llms.txt](https://img.shields.io/badge/llms.txt-24292f?logo=readme&logoColor=white)](https://raw.githubusercontent.com/tiliondev/fortress/main/llms.txt)
 
 <table align="center"><tr>
 <td align="center" width="150"><h3>34</h3><sub>single-surface<br/>C++ patches</sub></td>
