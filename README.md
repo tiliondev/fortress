@@ -12,7 +12,7 @@
 [![Chromium](https://img.shields.io/badge/chromium-151.0.7908.0-4285F4?logo=googlechrome&logoColor=white)](CHROMIUM_VERSION)
 [![PyPI](https://img.shields.io/pypi/v/tilion-fortress?logo=pypi&logoColor=white&label=pip)](https://pypi.org/project/tilion-fortress/)
 [![npm](https://img.shields.io/npm/v/tilion-fortress?logo=npm&label=npm)](https://www.npmjs.com/package/tilion-fortress)
-[![Docker Pulls](https://img.shields.io/docker/pulls/arham766/fortress?logo=docker&logoColor=white&label=docker%20pulls)](https://hub.docker.com/r/arham766/fortress)
+[![Docker Pulls](https://img.shields.io/docker/pulls/tilion/fortress?logo=docker&logoColor=white&label=docker%20pulls)](https://hub.docker.com/r/tilion/fortress)
 [![CreepJS](https://img.shields.io/badge/CreepJS-0%25%20headless-2ea44f)](docs/GAUNTLET_RESULTS.md)
 [![Runtime.enable leak](https://img.shields.io/badge/Runtime.enable-no%20leak-2ea44f)](docs/GAUNTLET_RESULTS.md)
 [![License](https://img.shields.io/badge/license-BSD--3--Clause-blue)](LICENSE)
@@ -121,8 +121,8 @@ await f.close();
 pip install tilion-fortress
 npm  install tilion-fortress
 
-# Any OS via Docker: raw CDP on :9222
-docker run --rm -p 9222:9222 arham766/fortress:latest
+# Any OS via Docker: raw CDP on :9222  (~302 MB pull / 851 MB on disk, stripped)
+docker run --rm -p 9222:9222 tilion/fortress:latest
 
 # Portable tarball (Linux x64): use it like a Chromium snapshot
 tar xzf tilion-fortress-linux-x64.tar.gz
@@ -189,7 +189,7 @@ Building an agent that browses? Fortress *is* the browser — raw CDP on `:9222`
 
 ```text
 Set up Fortress (open-source stealth Chromium) for my browser automation.
-1. Launch:  docker run -d --rm -p 9222:9222 arham766/fortress:latest
+1. Launch:  docker run -d --rm -p 9222:9222 tilion/fortress:latest
 2. Connect my Playwright/Puppeteer code over CDP to http://localhost:9222
    (Python: chromium.connect_over_cdp("http://localhost:9222")
     Node:   puppeteer.connect({ browserURL: "http://localhost:9222" }))
@@ -325,6 +325,37 @@ re-apply cleanly across upstream releases; the gauntlet then gates the release o
 |---|---|
 | Linux x64 (native) · any OS via Docker | <img src="docs/assets/icons/check.svg" width="15" alt="yes"> shipping |
 | Windows x64 `.exe` · macOS `.app` (signed) | in progress |
+
+---
+
+### Verify it's really ours
+
+Fortress ships from four official channels — treat anything else as untrusted:
+
+| | Official source |
+|---|---|
+| **Source** | [github.com/tiliondev/fortress](https://github.com/tiliondev/fortress) |
+| **Docker** | [`tilion/fortress`](https://hub.docker.com/r/tilion/fortress) |
+| **Python** | [`tilion-fortress`](https://pypi.org/project/tilion-fortress/) |
+| **Node** | [`tilion-fortress`](https://www.npmjs.com/package/tilion-fortress) |
+
+**Verify a download** — every release ships `SHA256SUMS`; check your file against it (the `pip`/`npm` SDKs do this automatically on install):
+
+```bash
+BASE=https://github.com/tiliondev/fortress/releases/download/v151.0.7908.0
+curl -LO $BASE/tilion-fortress-linux-x64.tar.gz
+curl -Ls $BASE/SHA256SUMS | sha256sum -c --ignore-missing     # -> OK
+```
+
+**Verify the Docker image** by digest (not just the tag):
+
+```bash
+docker pull tilion/fortress:151.0.7908.0
+docker inspect --format '{{index .RepoDigests 0}}' tilion/fortress:151.0.7908.0
+# compare the printed sha256:... against the digest in the GitHub Release notes
+```
+
+**Or trust nothing and rebuild it.** The whole fork is 34 readable patches in `patches/`; `build/build.sh` reproduces the binary from Chromium source, so you can diff what you built against what we ship.
 
 ---
 

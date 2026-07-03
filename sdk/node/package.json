@@ -1,6 +1,6 @@
 {
   "name": "tilion-fortress",
-  "version": "151.0.7908.0",
+  "version": "151.0.7908",
   "description": "Install and drive the Fortress stealth Chromium engine. Prebuilt binary, no source.",
   "type": "module",
   "main": "index.js",

@@ -11,7 +11,7 @@ Pick one. All expose CDP on `http://localhost:9222`.
 
 ```bash
 # Docker — any OS, nothing to build
-docker run -d --rm -p 9222:9222 arham766/fortress:latest
+docker run -d --rm -p 9222:9222 tilion/fortress:latest
 ```
 ```bash
 # Python

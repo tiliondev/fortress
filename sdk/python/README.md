@@ -9,7 +9,7 @@
 <p align="center">
   <a href="https://pypi.org/project/tilion-fortress/"><img src="https://img.shields.io/pypi/v/tilion-fortress?logo=pypi&logoColor=white" alt="PyPI"></a>
   <a href="https://pypi.org/project/tilion-fortress/"><img src="https://img.shields.io/pypi/pyversions/tilion-fortress?logo=python&logoColor=white" alt="Python"></a>
-  <a href="https://hub.docker.com/r/arham766/fortress"><img src="https://img.shields.io/docker/pulls/arham766/fortress?logo=docker&logoColor=white&label=docker%20pulls" alt="Docker Pulls"></a>
+  <a href="https://hub.docker.com/r/tilion/fortress"><img src="https://img.shields.io/docker/pulls/tilion/fortress?logo=docker&logoColor=white&label=docker%20pulls" alt="Docker Pulls"></a>
   <a href="https://github.com/tiliondev/fortress"><img src="https://img.shields.io/github/stars/tiliondev/fortress?style=social" alt="Stars"></a>
   <a href="https://github.com/tiliondev/fortress/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-BSD--3--Clause-blue" alt="License"></a>
 </p>
@@ -66,7 +66,7 @@ Fortress(
 
 ## Platform support
 
-Linux x64 has a native prebuilt binary. On macOS / Windows the package transparently runs Fortress via the official Docker image (`arham766/fortress`) — Docker is the cross-OS vehicle until native Win/Mac builds ship.
+Linux x64 has a native prebuilt binary. On macOS / Windows the package transparently runs Fortress via the official Docker image (`tilion/fortress`) — Docker is the cross-OS vehicle until native Win/Mac builds ship.
 
 > **Still blocked?** ~90% of the time it's your **IP**, not your fingerprint — datacenter ranges are flagged before any page script runs. Route egress through a residential or mobile proxy and retry.
 
@@ -74,6 +74,6 @@ Linux x64 has a native prebuilt binary. On macOS / Windows the package transpare
 
 - **Source & docs:** https://github.com/tiliondev/fortress
 - **Agent guide:** https://github.com/tiliondev/fortress/blob/main/AGENTS.md
-- **Docker image:** https://hub.docker.com/r/arham766/fortress
+- **Docker image:** https://hub.docker.com/r/tilion/fortress
 
 BSD-3-Clause · reproducible from source · monthly Chromium rebase · **Blink · V8 · BoringSSL** patched in-tree.

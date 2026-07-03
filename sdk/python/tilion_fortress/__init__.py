@@ -19,7 +19,7 @@ __all__ = ["Fortress", "resolve_platform"]
 
 _REPO = "tiliondev/fortress"
 _TAG = "v151.0.7908.0"   # engine release tag (decoupled from package version)
-_DOCKER_IMAGE = "arham766/fortress:latest"
+_DOCKER_IMAGE = "tilion/fortress:latest"
 _CACHE = Path(os.environ.get("FORTRESS_BROWSERS_PATH",
                              Path.home() / ".cache" / "tilion-fortress"))
 _HOST = os.environ.get("FORTRESS_DOWNLOAD_HOST",

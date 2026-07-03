@@ -22,6 +22,18 @@ for f in "${RUNTIME[@]}"; do
 done
 cp -a "$SRC/locales" "$B/locales"
 
+# Size: strip ELF debug/unneeded symbols (~176 MB off chrome) + trim UI locale .paks to the
+# ones we serve. Behavior is byte-identical (strip removes symbols, not code; locale paks are
+# internal UI, not JS-visible). NOTE: archive the UNSTRIPPED chrome + a .debug symbol file
+# (objcopy --only-keep-debug) BEFORE this, so field crashpad minidumps can be symbolicated.
+# ELF-only — do NOT run on Windows (.pdb) / macOS bundles.
+if command -v strip >/dev/null 2>&1; then
+  strip --strip-unneeded "$B/chrome" 2>/dev/null || true
+  [ -e "$B/chrome_crashpad_handler" ] && strip --strip-unneeded "$B/chrome_crashpad_handler" 2>/dev/null || true
+  for so in "$B"/*.so "$B"/*.so.1; do [ -e "$so" ] && strip --strip-unneeded "$so" 2>/dev/null || true; done
+fi
+find "$B/locales" -type f -name '*.pak' ! -name 'en-US.pak' ! -name 'en-GB.pak' -delete 2>/dev/null || true
+
 # Fonts + launcher + fontconfig template + README.
 cp "$FONTS"/*.ttf "$B/fonts/"
 cp "$REPO/packaging/tilion" "$B/tilion"; chmod +x "$B/tilion"

@@ -12,7 +12,7 @@ import { createHash } from "node:crypto";
 export const VERSION = "151.0.7908.0";
 const REPO = "tiliondev/fortress";
 const TAG = `v${VERSION}`;
-const DOCKER_IMAGE = "arham766/fortress:latest";
+const DOCKER_IMAGE = "tilion/fortress:latest";
 const CACHE = process.env.FORTRESS_BROWSERS_PATH || join(homedir(), ".cache", "tilion-fortress");
 const HOST = process.env.FORTRESS_DOWNLOAD_HOST || `https://github.com/${REPO}/releases/download/${TAG}`;
 

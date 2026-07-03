@@ -1,0 +1,2 @@
+[console_scripts]
+tilion-fortress = tilion_fortress.__main__:main
