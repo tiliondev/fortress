@@ -27,6 +27,7 @@ Exit code 0 if every check passes, 1 otherwise. Pure standard library; no build 
     python tools/check_patches.py --verbose
 """
 from __future__ import annotations
+
 import argparse
 import re
 import sys

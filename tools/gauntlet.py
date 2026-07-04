@@ -12,7 +12,18 @@ Usage:
 No third-party deps — raw CDP over a hand-rolled WebSocket so it runs anywhere
 Python 3 does.
 """
-import argparse, base64, json, os, shutil, socket, struct, subprocess, sys, tempfile, time, http.client
+import argparse
+import base64
+import http.client
+import json
+import os
+import shutil
+import socket
+import struct
+import subprocess
+import sys
+import tempfile
+import time
 
 
 def ws_eval(port, expr, timeout=20):

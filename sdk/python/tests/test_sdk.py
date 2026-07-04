@@ -9,6 +9,7 @@ ships the wrong binary or skips checksum verification, so it is worth gating in 
 Run:  pytest sdk/python/tests -q
 """
 from __future__ import annotations
+
 import sys
 from pathlib import Path
 

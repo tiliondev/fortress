@@ -1,5 +1,9 @@
 """CLI: `tilion-fortress` — launch Fortress and print the CDP URL."""
-import argparse, signal, sys, time
+import argparse
+import signal
+import sys
+import time
+
 from . import Fortress, __version__
 
 

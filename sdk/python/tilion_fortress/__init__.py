@@ -11,7 +11,18 @@ native binaries are published for that platform.
         print(f.cdp_url)   # connect any CDP client (Playwright/Puppeteer)
 """
 from __future__ import annotations
-import hashlib, json, os, platform, shutil, subprocess, sys, tarfile, time, urllib.request, zipfile
+
+import hashlib
+import json
+import os
+import platform
+import shutil
+import subprocess
+import sys
+import tarfile
+import time
+import urllib.request
+import zipfile
 from pathlib import Path
 
 __version__ = "151.0.7908.0.post1"

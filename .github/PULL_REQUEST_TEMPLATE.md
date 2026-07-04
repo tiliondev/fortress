@@ -1,21 +1,23 @@
-<!-- Thanks for contributing to Fortress. Keep PRs focused; see CONTRIBUTING.md. -->
+## Description
 
-## What this changes
+Please include a summary of the change and which issue is fixed.
 
-<!-- One or two sentences. Link the issue it closes, e.g. "Closes #123". -->
+Fixes # (issue)
 
-## Type
+## Type of Change
 
-- [ ] Fingerprint patch (touches `patches/`)
-- [ ] SDK / tooling / packaging
-- [ ] Docs
-- [ ] CI / infra
+- [ ] Bug fix (non-breaking change)
+- [ ] New feature (non-breaking change)
+- [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
+- [ ] Documentation update
+- [ ] Security fix
 
 ## Checklist
 
-- [ ] `python tools/check_patches.py` passes
-- [ ] `python -m pytest sdk/python/tests -q` passes (if SDK touched)
-- [ ] If this touches `patches/`: it is **one file per patch**, added to `patches/series`, and uses
-      only the `uxr-` switch prefix (no brand strings baked into the binary)
-- [ ] Any limitation or partial fix is written down (no oversold "undetectable" claims)
-- [ ] For a surface change: before/after value on Fortress vs stock Chrome is in the description
+- [ ] My code follows the style guidelines of this project
+- [ ] I have performed a self-review of my own code
+- [ ] I have commented my code, particularly in hard-to-understand areas
+- [ ] I have made corresponding changes to the documentation
+- [ ] My changes generate no new warnings
+- [ ] I have added tests that prove my fix is effective or that my feature works
+- [ ] New and existing unit tests pass locally with my changes

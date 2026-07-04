@@ -20,7 +20,9 @@ Fortress spoofs the fingerprint in the engine's C++, so nothing here adds JS ste
 If a site still blocks you it's the IP (datacenter) — route egress through a residential proxy.
 """
 from __future__ import annotations
-import sys, time
+
+import sys
+import time
 from pathlib import Path
 
 OUT = Path(__file__).resolve().parent
@@ -134,7 +136,7 @@ def d_structured(pg, cap):
           s:a.querySelector('.instock')?.textContent?.trim()?'In stock':'-'}))""")
     rows = []
     for i, bk in enumerate(books):
-        t = (bk['t'] or '')[:22]
+        t = (bk["t"] or "")[:22]
         base = {"title": "structured extraction", "status": f"{i+1}/8 records",
                 "panel": {"title": "records[]  →  JSON", "rows": list(rows)},
                 "boxes": [{"sel": "article.product_pod", "idx": j, "active": False} for j in range(i)]}
@@ -166,10 +168,10 @@ def d_detail(pg, cap):
     }""")
     for i, f in enumerate(fields):
         base = {"title": "deep detail crawl", "status": f"extracting field {i+1}/{len(fields)}",
-                "boxes": [{"sel": fields[j]['sel'], "idx": fields[j]['idx'], "label": fields[j]['label'], "active": False} for j in range(i)]}
-        cap.pops(base, {"sel": f['sel'], "idx": f['idx'], "label": f['label']})
+                "boxes": [{"sel": fields[j]["sel"], "idx": fields[j]["idx"], "label": fields[j]["label"], "active": False} for j in range(i)]}
+        cap.pops(base, {"sel": f["sel"], "idx": f["idx"], "label": f["label"]})
     hold = {"title": "deep detail crawl", "status": "done",
-            "boxes": [{"sel": f['sel'], "idx": f['idx'], "label": f['label'], "active": False} for f in fields]}
+            "boxes": [{"sel": f["sel"], "idx": f["idx"], "label": f["label"], "active": False} for f in fields]}
     for _ in range(10):
         cap.frame({**hold, "done": {"title": f"{len(fields)} fields · deep crawl", "sub": "UPC · price · tax · stock · reviews"}})
 
@@ -203,8 +205,8 @@ def build_gif(frames_dir: Path, out_gif: Path):
 
 
 def run_one(name: str):
-    from tilion_fortress import Fortress
     from playwright.sync_api import sync_playwright
+    from tilion_fortress import Fortress
     frames_dir = OUT / f".frames_{name}"
     print(f"[*] demo '{name}': launching Fortress...")
     with Fortress() as f:
