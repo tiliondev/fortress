@@ -17,7 +17,7 @@ const CACHE = process.env.FORTRESS_BROWSERS_PATH || join(homedir(), ".cache", "t
 const HOST = process.env.FORTRESS_DOWNLOAD_HOST || `https://github.com/${REPO}/releases/download/${TAG}`;
 
 // platform key -> { asset, kind, launcher }
-const ASSETS = {
+export const ASSETS = {
   "linux-x64": { asset: "tilion-fortress-linux-x64.tar.gz", kind: "tar", launcher: "tilion-fortress/tilion" },
   "win-x64":   { asset: "tilion-fortress-win-x64.zip",       kind: "zip", launcher: "tilion-fortress/tilion.cmd" },
   "mac-arm64": { asset: "tilion-fortress-mac-arm64.tar.gz",  kind: "tar", launcher: "tilion-fortress/tilion" },
@@ -32,7 +32,7 @@ export function resolvePlatform() {
   return null;
 }
 
-function personaArgs(persona) {
+export function personaArgs(persona) {
   if (!persona) return [];
   const map = { platform: "--uxr-platform", timezone: "--uxr-timezone", languages: "--uxr-languages",
     webglRenderer: "--uxr-webgl-renderer", webglVendor: "--uxr-webgl-vendor",
@@ -41,13 +41,13 @@ function personaArgs(persona) {
   return Object.entries(persona).map(([k, v]) => `${map[k] || `--uxr-${k}`}=${v}`);
 }
 
-async function sha256(path) {
+export async function sha256(path) {
   const h = createHash("sha256");
   await pipeline(createReadStream(path), h);
   return h.digest("hex");
 }
 
-async function expectedSha(asset) {
+export async function expectedSha(asset) {
   try {
     const r = await fetch(`${HOST}/SHA256SUMS`);
     if (!r.ok) return null;
