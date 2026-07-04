@@ -58,7 +58,7 @@ jobs:
           shellcheck --severity=error build/**/*.sh packaging/**/*.sh
 
   node-sdk:
-    name: node sdk syntax
+    name: node sdk tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -69,3 +69,5 @@ jobs:
         run: |
           node --check sdk/node/index.js
           node --check sdk/node/cli.js
+      - name: Run unit tests
+        run: node --test sdk/node/test/
