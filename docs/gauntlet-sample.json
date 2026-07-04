@@ -1,0 +1,37 @@
+{
+  "surfaces": {
+    "webdriver": false,
+    "platform": "Win32",
+    "uaWindows": true,
+    "mp4": "probably",
+    "emoji": true,
+    "webglRenderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 3060 Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "hardwareConcurrency": 16,
+    "deviceMemory": 8,
+    "languages": [
+      "en-US",
+      "en"
+    ],
+    "timezone": "America/New_York",
+    "canvasNoisePixels": 37,
+    "webgpuAdapter": true,
+    "webgpuVendor": "nvidia",
+    "plugins": 5
+  },
+  "invariants": {
+    "webdriver is false": true,
+    "platform is Win32": true,
+    "UA is Windows": true,
+    "mp4 codec works": true,
+    "emoji font present": true,
+    "WebGL renderer spoofed": true,
+    "hardwareConcurrency plausible": true,
+    "deviceMemory present": true,
+    "languages well-formed": true,
+    "timezone is an IANA zone": true,
+    "canvas 2D noise present": true,
+    "WebGPU adapter present": true,
+    "plugins non-empty": true
+  },
+  "ok": true
+}

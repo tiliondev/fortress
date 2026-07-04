@@ -7,7 +7,11 @@ Launches a tilion-fortress bundle headless and runs the live detection suites
 stealth invariants. Exit 0 = clean, non-zero = a surface regressed.
 
 Usage:
-    tools/gauntlet.py --bundle /path/to/tilion-fortress [--port 9333] [--keep]
+    tools/gauntlet.py --bundle /path/to/tilion-fortress [--port 9333] [--keep] [--json]
+
+With --json it prints a machine-readable {surfaces, invariants, ok} report on stdout
+(and still sets the exit code) so CI and dashboards can consume it; see
+docs/gauntlet-sample.json. Without it, the human-readable report is unchanged.
 
 No third-party deps — raw CDP over a hand-rolled WebSocket so it runs anywhere
 Python 3 does.
@@ -66,6 +70,9 @@ def main():
     ap.add_argument("--bundle", required=True, help="path to extracted tilion-fortress/")
     ap.add_argument("--port", type=int, default=9333)
     ap.add_argument("--keep", action="store_true", help="leave the browser running")
+    ap.add_argument("--json", action="store_true",
+                    help="emit a machine-readable {surfaces, invariants, ok} JSON report on "
+                         "stdout (and set the exit code) instead of the human text report")
     args = ap.parse_args()
 
     launcher = os.path.join(args.bundle, "tilion.cmd" if os.name == "nt" else "tilion")
@@ -91,21 +98,51 @@ def main():
             except Exception:
                 time.sleep(0.5)
 
-        checks = ws_eval(args.port, """JSON.stringify((function(){
+        # One async pass over the page. WebGPU adapter info needs an awaited requestAdapter(),
+        # and canvas 2D noise is measured by filling a flat grey rect and counting how many
+        # read-back pixels drift off it — a clean engine leaves it perfectly flat.
+        checks = ws_eval(args.port, """(async function(){
+            function canvasNoisePixels(){
+              try{
+                var cv=document.createElement('canvas'); cv.width=64; cv.height=16;
+                var ctx=cv.getContext('2d'); ctx.fillStyle='rgb(128,128,128)'; ctx.fillRect(0,0,64,16);
+                var d=ctx.getImageData(0,0,cv.width,cv.height).data, n=0;
+                for(var i=0;i<d.length;i+=4){ if(d[i]!==128||d[i+1]!==128||d[i+2]!==128) n++; }
+                return n;
+              }catch(e){ return -1; }
+            }
+            var webgpuAdapter=false, webgpuVendor='';
+            try{
+              if(navigator.gpu){
+                var a=await navigator.gpu.requestAdapter();
+                webgpuAdapter=!!a;
+                if(a && a.requestAdapterInfo){ try{ webgpuVendor=(await a.requestAdapterInfo()).vendor||''; }catch(e){} }
+              }
+            }catch(e){}
             var g=document.createElement('canvas').getContext('webgl');
             var dbg=g&&g.getExtension('WEBGL_debug_renderer_info');
-            return {
+            return JSON.stringify({
               webdriver: navigator.webdriver,
               platform: navigator.platform,
               uaWindows: /Windows NT/.test(navigator.userAgent),
               mp4: document.createElement('video').canPlayType('video/mp4; codecs="avc1.42E01E"'),
               emoji: document.fonts.check('32px "Segoe UI Emoji"'),
-              webglRenderer: dbg ? g.getParameter(dbg.UNMASKED_RENDERER_WEBGL) : ''
-            };
-        })())""")
+              webglRenderer: dbg ? g.getParameter(dbg.UNMASKED_RENDERER_WEBGL) : '',
+              hardwareConcurrency: navigator.hardwareConcurrency,
+              deviceMemory: navigator.deviceMemory,
+              languages: navigator.languages,
+              timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+              canvasNoisePixels: canvasNoisePixels(),
+              webgpuAdapter: webgpuAdapter,
+              webgpuVendor: webgpuVendor,
+              plugins: navigator.plugins.length
+            });
+        })()""")
         r = json.loads(checks)
-        print("Gauntlet surfaces:", json.dumps(r, indent=2))
 
+        hc = r["hardwareConcurrency"]
+        dm = r["deviceMemory"]
+        langs = r["languages"]
         invariants = {
             "webdriver is false": r["webdriver"] is False,
             "platform is Win32": r["platform"] == "Win32",
@@ -113,14 +150,29 @@ def main():
             "mp4 codec works": r["mp4"] == "probably",
             "emoji font present": r["emoji"] is True,
             "WebGL renderer spoofed": "NVIDIA" in (r["webglRenderer"] or ""),
+            "hardwareConcurrency plausible": isinstance(hc, int) and 1 <= hc <= 128,
+            "deviceMemory present": isinstance(dm, (int, float)) and dm > 0,
+            "languages well-formed": isinstance(langs, list) and len(langs) >= 2,
+            "timezone is an IANA zone": isinstance(r["timezone"], str) and "/" in r["timezone"],
+            "canvas 2D noise present": isinstance(r["canvasNoisePixels"], int) and r["canvasNoisePixels"] > 0,
+            "WebGPU adapter present": r["webgpuAdapter"] is True,
+            "plugins non-empty": isinstance(r["plugins"], int) and r["plugins"] > 0,
         }
         failed = [k for k, v in invariants.items() if not v]
-        for k, v in invariants.items():
-            print(f"  [{'PASS' if v else 'FAIL'}] {k}")
-        if failed:
-            print(f"\nGAUNTLET FAILED: {len(failed)} regression(s).")
+        ok = not failed
+
+        if args.json:
+            print(json.dumps({"surfaces": r, "invariants": invariants, "ok": ok}, indent=2))
+        else:
+            print("Gauntlet surfaces:", json.dumps(r, indent=2))
+            for k, v in invariants.items():
+                print(f"  [{'PASS' if v else 'FAIL'}] {k}")
+            if ok:
+                print("\nGAUNTLET PASS — Fortress is stealth-clean.")
+            else:
+                print(f"\nGAUNTLET FAILED: {len(failed)} regression(s).")
+        if not ok:
             sys.exit(1)
-        print("\nGAUNTLET PASS — Fortress is stealth-clean.")
     finally:
         if not args.keep:
             proc.terminate()
