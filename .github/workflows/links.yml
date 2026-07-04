@@ -1,0 +1,37 @@
+name: links
+
+# Dead links and dead badges are a common rot in public repos. This verifies every
+# markdown link + image/badge URL in README.md and docs/ still resolves, so a moved
+# file or renamed release asset can't silently 404 for visitors.
+on:
+  pull_request:
+    paths:
+      - "**/*.md"
+      - ".lycheeignore"
+      - ".github/workflows/links.yml"
+  schedule:
+    - cron: "0 6 * * 1" # Mondays 06:00 UTC — catches external rot between PRs
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: links-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  linkcheck:
+    name: markdown links + badges
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check links
+        uses: lycheeverse/lychee-action@v2
+        with:
+          # Hard 404s fail the job; flaky/rate-limited hosts are tolerated via .lycheeignore.
+          args: --no-progress --max-retries 3 README.md "docs/**/*.md"
+          fail: true
+        env:
+          # Authenticated github.com requests avoid the low anonymous API rate limit.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

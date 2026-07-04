@@ -1,0 +1,18 @@
+# Hosts lychee should not check. One regex per line, matched against the whole URL.
+# Keep this list to genuinely-flaky or non-fetchable endpoints — real content links
+# (github.com, raw.githubusercontent.com, npm, pypi, detector sites) stay checked so
+# a moved file or renamed asset is caught.
+
+# Local dev endpoints that appear in code examples, not real links.
+^https?://localhost
+^https?://127\.0\.0\.1
+
+# Badge / image hosts that rate-limit CI crawlers; a stale badge is cosmetic, not a 404.
+img\.shields\.io
+hub\.docker\.com
+star-history\.com
+
+# "Ask an assistant" deep links — interactive endpoints that block bots or require login.
+^https://chatgpt\.com
+^https://claude\.ai
+^https://gemini\.google\.com

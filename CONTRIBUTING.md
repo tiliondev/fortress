@@ -59,6 +59,11 @@ Optionally install the git hooks so they run automatically:
 pip install pre-commit && pre-commit install
 ```
 
+Markdown links and badges in `README.md` and `docs/` are verified by the **links** workflow
+([lychee](https://github.com/lycheeverse/lychee-action)) — on PRs that touch a `*.md` file and on
+a weekly schedule. A hard 404 fails the job. If an external host merely rate-limits the CI crawler,
+add it to [`.lycheeignore`](.lycheeignore) rather than leaving the check red.
+
 ## Submitting a change
 
 1. **Open an issue first** for anything beyond a typo, so we can agree on the surface and approach.
