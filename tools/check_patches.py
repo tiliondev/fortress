@@ -57,8 +57,8 @@ class Report:
             self.failures.append(name)
 
 
-def _patch_files() -> list[Path]:
-    return sorted(p for p in PATCHES.glob("*.patch"))
+def _patch_files(patches_dir: Path) -> list[Path]:
+    return sorted(p for p in patches_dir.glob("*.patch"))
 
 
 def _strip_comment(added: str) -> str:
@@ -67,14 +67,15 @@ def _strip_comment(added: str) -> str:
     return added[:i] if i != -1 else added
 
 
-def check_series_sync(rep: Report, verbose: bool) -> None:
-    if not SERIES.exists():
+def check_series_sync(rep: Report, patches_dir: Path, verbose: bool) -> None:
+    series = patches_dir / "series"
+    if not series.exists():
         rep.check("series-sync", False, "patches/series is missing")
         return
-    listed = [ln.strip() for ln in SERIES.read_text().splitlines()
+    listed = [ln.strip() for ln in series.read_text().splitlines()
               if ln.strip() and not ln.strip().startswith("#")]
     listed_names = [Path(x).name for x in listed]
-    actual = [p.name for p in _patch_files()]
+    actual = [p.name for p in _patch_files(patches_dir)]
 
     dupes = sorted({n for n in listed_names if listed_names.count(n) > 1})
     missing_file = [n for n in listed_names if n not in actual]        # in series, no file
@@ -94,10 +95,10 @@ def check_series_sync(rep: Report, verbose: bool) -> None:
     rep.check("series-sync", ok, detail)
 
 
-def check_numbering(rep: Report, verbose: bool) -> None:
+def check_numbering(rep: Report, patches_dir: Path, verbose: bool) -> None:
     nums: list[int] = []
     bad_names: list[str] = []
-    for p in _patch_files():
+    for p in _patch_files(patches_dir):
         m = PATCH_NAME_RE.match(p.name)
         if not m:
             bad_names.append(p.name)
@@ -118,14 +119,14 @@ def check_numbering(rep: Report, verbose: bool) -> None:
     rep.check("numbering", ok, detail)
 
 
-def check_bodies(rep: Report, verbose: bool) -> None:
+def check_bodies(rep: Report, patches_dir: Path, verbose: bool) -> None:
     """single-surface + well-formed + uxr-only + no-brand, per patch."""
     multi_file: list[str] = []
     malformed: list[str] = []
     bad_switch: list[str] = []
     brand_hits: list[str] = []
 
-    for p in _patch_files():
+    for p in _patch_files(patches_dir):
         text = p.read_text(encoding="utf-8", errors="replace")
         lines = text.splitlines()
         diff_headers = [ln for ln in lines if ln.startswith("diff --git ")]
@@ -159,20 +160,37 @@ def check_bodies(rep: Report, verbose: bool) -> None:
               else f"brand literal would ship in binary: {brand_hits}")
 
 
+def run_checks(patches_dir: Path, verbose: bool = False) -> Report:
+    """Run every check against `patches_dir` and return the populated Report.
+
+    The one seam the tests use: point this at a fixture directory (holding
+    `*.patch` files and a `series`) to exercise each check in isolation.
+    """
+    rep = Report()
+    check_series_sync(rep, patches_dir, verbose)
+    check_numbering(rep, patches_dir, verbose)
+    check_bodies(rep, patches_dir, verbose)
+    return rep
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description="Integrity linter for the Fortress patch set.")
     ap.add_argument("-v", "--verbose", action="store_true")
+    ap.add_argument("--patches-dir", type=Path, default=PATCHES,
+                    help="directory holding the *.patch files and series (default: patches/)")
     args = ap.parse_args()
 
-    if not PATCHES.is_dir():
-        print(f"error: {PATCHES} not found (run from the repo root)", file=sys.stderr)
+    patches_dir = args.patches_dir
+    if not patches_dir.is_dir():
+        print(f"error: {patches_dir} not found (run from the repo root)", file=sys.stderr)
         return 1
 
-    print(f"Fortress patch-set linter - {len(_patch_files())} patches in {PATCHES.relative_to(REPO)}/")
-    rep = Report()
-    check_series_sync(rep, args.verbose)
-    check_numbering(rep, args.verbose)
-    check_bodies(rep, args.verbose)
+    try:
+        where = patches_dir.resolve().relative_to(REPO)
+    except ValueError:
+        where = patches_dir
+    print(f"Fortress patch-set linter - {len(_patch_files(patches_dir))} patches in {where}/")
+    rep = run_checks(patches_dir, args.verbose)
 
     print("-" * 60)
     if rep.failures:
