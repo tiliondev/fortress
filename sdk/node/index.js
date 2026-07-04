@@ -11,10 +11,16 @@ import { createHash } from "node:crypto";
 
 export const VERSION = "151.0.7908.0";
 const REPO = "tiliondev/fortress";
-const TAG = `v${VERSION}`;
-const DOCKER_IMAGE = "tilion/fortress:latest";
+// Two release channels. "stable" = Chromium 149 (recommended default — matches the Chrome version
+// the mass of real users run). "latest" = 151 (newest engine). Override with { channel } or the
+// FORTRESS_CHANNEL env var.
+export const CHANNELS = {
+  stable: { tag: "v149.0.7827.232", docker: "tilion/fortress:149" },
+  latest: { tag: "v151.0.7908.0",   docker: "tilion/fortress:151" },
+};
+const DEFAULT_CHANNEL = process.env.FORTRESS_CHANNEL || "stable";
 const CACHE = process.env.FORTRESS_BROWSERS_PATH || join(homedir(), ".cache", "tilion-fortress");
-const HOST = process.env.FORTRESS_DOWNLOAD_HOST || `https://github.com/${REPO}/releases/download/${TAG}`;
+const hostFor = (tag) => process.env.FORTRESS_DOWNLOAD_HOST || `https://github.com/${REPO}/releases/download/${tag}`;
 
 // platform key -> { asset, kind, launcher }
 export const ASSETS = {
@@ -47,9 +53,9 @@ export async function sha256(path) {
   return h.digest("hex");
 }
 
-export async function expectedSha(asset) {
+export async function expectedSha(asset, host) {
   try {
-    const r = await fetch(`${HOST}/SHA256SUMS`);
+    const r = await fetch(`${host}/SHA256SUMS`);
     if (!r.ok) return null;
     for (const line of (await r.text()).split("\n")) {
       const p = line.trim().split(/\s+/);
@@ -59,19 +65,19 @@ export async function expectedSha(asset) {
   return null;
 }
 
-async function ensureNative(plat) {
+async function ensureNative(plat, host, tag) {
   const { asset, kind, launcher } = ASSETS[plat];
-  const root = join(CACHE, VERSION, plat);
+  const root = join(CACHE, tag, plat);   // cache per release tag so channels don't collide
   const launcherPath = join(root, launcher);
   if (existsSync(launcherPath)) return launcherPath;
   mkdirSync(root, { recursive: true });
   const archive = join(root, asset);
-  process.stderr.write(`[tilion-fortress] downloading ${HOST}/${asset} ...\n`);
-  const res = await fetch(`${HOST}/${asset}`);
+  process.stderr.write(`[tilion-fortress] downloading ${host}/${asset} ...\n`);
+  const res = await fetch(`${host}/${asset}`);
   if (!res.ok) throw new Error(`download failed: ${res.status}`);
   await pipeline(res.body, createWriteStream(archive));
 
-  const exp = await expectedSha(asset);
+  const exp = await expectedSha(asset, host);
   if (exp) {
     const act = await sha256(archive);
     if (act !== exp) throw new Error(`SHA256 mismatch for ${asset}: expected ${exp}, got ${act}`);
@@ -93,8 +99,8 @@ async function ensureNative(plat) {
   return launcherPath;
 }
 
-async function assetExists(plat) {
-  try { return (await fetch(`${HOST}/${ASSETS[plat].asset}`, { method: "HEAD" })).ok; }
+async function assetExists(plat, host) {
+  try { return (await fetch(`${host}/${ASSETS[plat].asset}`, { method: "HEAD" })).ok; }
   catch { return false; }
 }
 
@@ -109,21 +115,24 @@ async function waitCdp(port, timeoutMs = 40000) {
 }
 
 export class Fortress {
-  constructor({ port = 9222, persona = null, extraArgs = [], headless = true } = {}) {
-    Object.assign(this, { port, persona, extraArgs, headless, proc: null, dockerName: null, cdpUrl: null });
+  constructor({ port = 9222, persona = null, extraArgs = [], headless = true, channel = DEFAULT_CHANNEL } = {}) {
+    if (!CHANNELS[channel]) throw new Error(`unknown channel '${channel}'; use one of ${Object.keys(CHANNELS)}`);
+    const { tag, docker } = CHANNELS[channel];
+    Object.assign(this, { port, persona, extraArgs, headless, channel, tag, docker, host: hostFor(tag),
+                          proc: null, dockerName: null, cdpUrl: null });
   }
   static async launch(opts) { return new Fortress(opts).start(); }
 
   async start() {
     const plat = resolvePlatform();
-    const native = plat && (plat === "linux-x64" || await assetExists(plat));
+    const native = plat && (plat === "linux-x64" || await assetExists(plat, this.host));
     if (native) await this._startNative(plat); else this._startDocker();
     this.cdpUrl = await waitCdp(this.port);
     return this;
   }
 
   async _startNative(plat) {
-    const launcher = await ensureNative(plat);
+    const launcher = await ensureNative(plat, this.host, this.tag);
     const args = [];
     if (this.headless) args.push("--headless=new", "--no-sandbox");
     args.push(`--remote-debugging-port=${this.port}`, `--user-data-dir=${join(CACHE, "profile")}`,
@@ -135,7 +144,7 @@ export class Fortress {
     if (spawnSync("docker", ["--version"]).status !== 0)
       throw new Error("No native binary for this platform yet and Docker not installed. Install Docker Desktop or use Linux x64.");
     this.dockerName = `tilion-fortress-${process.pid}-${this.port}`;
-    const args = ["run", "-d", "--rm", "--name", this.dockerName, "-p", `${this.port}:9222`, DOCKER_IMAGE,
+    const args = ["run", "-d", "--rm", "--name", this.dockerName, "-p", `${this.port}:9222`, this.docker,
       ...personaArgs(this.persona), ...this.extraArgs];
     if (spawnSync("docker", args, { stdio: "ignore" }).status !== 0) throw new Error("docker run failed");
   }

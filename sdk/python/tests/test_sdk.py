@@ -101,7 +101,7 @@ def test_expected_sha_parses_matching_asset(monkeypatch):
         f"deadbeef  tilion-fortress-win-x64.zip\n"
     ).encode()
     monkeypatch.setattr(tf.urllib.request, "urlopen", lambda *a, **k: _FakeResp(body))
-    assert tf._expected_sha(asset) == "aa11bb22"
+    assert tf._expected_sha(asset, "https://h") == "aa11bb22"
 
 
 def test_expected_sha_handles_starred_binary_marker(monkeypatch):
@@ -109,13 +109,13 @@ def test_expected_sha_handles_starred_binary_marker(monkeypatch):
     asset = tf._ASSETS["linux-x64"][0]
     body = f"cafef00d *{asset}\n".encode()
     monkeypatch.setattr(tf.urllib.request, "urlopen", lambda *a, **k: _FakeResp(body))
-    assert tf._expected_sha(asset) == "cafef00d"
+    assert tf._expected_sha(asset, "https://h") == "cafef00d"
 
 
 def test_expected_sha_returns_none_when_absent(monkeypatch):
     body = b"aa11bb22  some-other-asset.tar.gz\n"
     monkeypatch.setattr(tf.urllib.request, "urlopen", lambda *a, **k: _FakeResp(body))
-    assert tf._expected_sha(tf._ASSETS["linux-x64"][0]) is None
+    assert tf._expected_sha(tf._ASSETS["linux-x64"][0], "https://h") is None
 
 
 def test_expected_sha_swallows_network_error(monkeypatch):
@@ -123,13 +123,28 @@ def test_expected_sha_swallows_network_error(monkeypatch):
         raise OSError("network down")
     monkeypatch.setattr(tf.urllib.request, "urlopen", boom)
     # Must degrade to None (caller then warns + skips), never raise.
-    assert tf._expected_sha("anything") is None
+    assert tf._expected_sha("anything", "https://h") is None
 
 
 # --------------------------------------------------------------------------- release wiring
-def test_version_and_tag_are_coherent():
+def test_channels_are_coherent():
     import re
     assert re.fullmatch(r"\d+\.\d+\.\d+.*", tf.__version__)
-    assert re.fullmatch(r"v\d+\.\d+\.\d+\.\d+", tf._TAG)
     assert tf._REPO == "tiliondev/fortress"
-    assert tf._DOCKER_IMAGE.startswith("tilion/fortress")
+    assert tf._DEFAULT_CHANNEL in tf._CHANNELS
+    assert tf._DEFAULT_CHANNEL == "stable"          # 149 is the recommended default
+    for ch, cfg in tf._CHANNELS.items():
+        assert re.fullmatch(r"v\d+\.\d+\.\d+\.\d+", cfg["tag"])
+        assert cfg["docker"].startswith("tilion/fortress")
+    assert tf._CHANNELS["stable"]["tag"].startswith("v149")
+    assert tf._CHANNELS["latest"]["tag"].startswith("v151")
+
+
+def test_channel_resolution():
+    assert tf.Fortress(channel="stable")._tag == "v149.0.7827.232"
+    assert tf.Fortress(channel="latest")._tag == "v151.0.7908.0"
+    assert tf.Fortress()._tag == tf.Fortress(channel=tf._DEFAULT_CHANNEL)._tag
+    try:
+        tf.Fortress(channel="nope"); assert False
+    except ValueError:
+        pass

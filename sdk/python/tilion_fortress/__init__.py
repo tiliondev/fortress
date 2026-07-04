@@ -14,16 +14,25 @@ from __future__ import annotations
 import hashlib, json, os, platform, shutil, subprocess, sys, tarfile, time, urllib.request, zipfile
 from pathlib import Path
 
-__version__ = "151.0.7908.0.post1"
+__version__ = "151.0.7908.0.post3"
 __all__ = ["Fortress", "resolve_platform"]
 
 _REPO = "tiliondev/fortress"
-_TAG = "v151.0.7908.0"   # engine release tag (decoupled from package version)
-_DOCKER_IMAGE = "tilion/fortress:latest"
+# Two release channels. "stable" = Chromium 149 (the recommended default — it matches the Chrome
+# version the mass of real users run, so it blends in best). "latest" = 151 (newest engine).
+# Override per-instance with channel=..., or globally with the FORTRESS_CHANNEL env var.
+_CHANNELS = {
+    "stable": {"tag": "v149.0.7827.232", "docker": "tilion/fortress:149"},
+    "latest": {"tag": "v151.0.7908.0",   "docker": "tilion/fortress:151"},
+}
+_DEFAULT_CHANNEL = os.environ.get("FORTRESS_CHANNEL", "stable")
 _CACHE = Path(os.environ.get("FORTRESS_BROWSERS_PATH",
                              Path.home() / ".cache" / "tilion-fortress"))
-_HOST = os.environ.get("FORTRESS_DOWNLOAD_HOST",
-                       f"https://github.com/{_REPO}/releases/download/{_TAG}")
+
+
+def _host(tag: str) -> str:
+    return os.environ.get("FORTRESS_DOWNLOAD_HOST",
+                          f"https://github.com/{_REPO}/releases/download/{tag}")
 
 # platform key -> (release asset, archive kind, launcher relative path)
 _ASSETS = {
@@ -53,10 +62,10 @@ def _sha256(path: Path) -> str:
     return h.hexdigest()
 
 
-def _expected_sha(asset: str) -> str | None:
+def _expected_sha(asset: str, host: str) -> str | None:
     """Fetch SHA256SUMS from the release and return the hash for `asset`."""
     try:
-        with urllib.request.urlopen(f"{_HOST}/SHA256SUMS", timeout=30) as r:
+        with urllib.request.urlopen(f"{host}/SHA256SUMS", timeout=30) as r:
             for line in r.read().decode().splitlines():
                 parts = line.split()
                 if len(parts) == 2 and parts[1].lstrip("*") == asset:
@@ -66,20 +75,20 @@ def _expected_sha(asset: str) -> str | None:
     return None
 
 
-def _download(plat: str) -> Path:
+def _download(plat: str, host: str, tag: str) -> Path:
     """Ensure the bundle for `plat` is present + verified; return the launcher path."""
     asset, kind, launcher_rel = _ASSETS[plat]
-    root = _CACHE / __version__ / plat
+    root = _CACHE / tag / plat   # cache per release tag so channels don't collide
     launcher = root / launcher_rel
     if launcher.exists():
         return launcher
     root.mkdir(parents=True, exist_ok=True)
     archive = root / asset
-    url = f"{_HOST}/{asset}"
+    url = f"{host}/{asset}"
     sys.stderr.write(f"[tilion-fortress] downloading {url} ...\n")
     urllib.request.urlretrieve(url, archive)
 
-    expected = _expected_sha(asset)
+    expected = _expected_sha(asset, host)
     if expected:
         actual = _sha256(archive)
         if actual != expected:
@@ -120,8 +129,16 @@ class Fortress:
     """A running Fortress instance exposing a CDP endpoint at ``cdp_url``."""
 
     def __init__(self, port: int = 9222, persona: dict | None = None,
-                 extra_args: list[str] | None = None, headless: bool = True):
+                 extra_args: list[str] | None = None, headless: bool = True,
+                 channel: str | None = None):
         self.port, self.persona, self.extra_args, self.headless = port, persona, extra_args or [], headless
+        ch = channel or _DEFAULT_CHANNEL
+        if ch not in _CHANNELS:
+            raise ValueError(f"unknown channel {ch!r}; use one of {list(_CHANNELS)}")
+        self.channel = ch
+        self._tag = _CHANNELS[ch]["tag"]
+        self._docker = _CHANNELS[ch]["docker"]
+        self._host = _host(self._tag)
         self._proc = self._docker_name = self.cdp_url = None
 
     def start(self) -> "Fortress":
@@ -135,18 +152,17 @@ class Fortress:
         self.cdp_url = self._wait_cdp()
         return self
 
-    @staticmethod
-    def _asset_exists(plat: str) -> bool:
+    def _asset_exists(self, plat: str) -> bool:
         asset = _ASSETS[plat][0]
         try:
-            req = urllib.request.Request(f"{_HOST}/{asset}", method="HEAD")
+            req = urllib.request.Request(f"{self._host}/{asset}", method="HEAD")
             with urllib.request.urlopen(req, timeout=15):
                 return True
         except Exception:
             return False
 
     def _start_native(self, plat: str):
-        launcher = _download(plat)
+        launcher = _download(plat, self._host, self._tag)
         args = [str(launcher)]
         if self.headless:
             args += ["--headless=new", "--no-sandbox"]
@@ -161,7 +177,7 @@ class Fortress:
                 "Install Docker Desktop, or run on Linux x64.")
         self._docker_name = f"tilion-fortress-{os.getpid()}-{self.port}"
         args = ["docker", "run", "-d", "--rm", "--name", self._docker_name,
-                "-p", f"{self.port}:9222", _DOCKER_IMAGE] + _persona_args(self.persona) + self.extra_args
+                "-p", f"{self.port}:9222", self._docker] + _persona_args(self.persona) + self.extra_args
         subprocess.run(args, check=True, stdout=subprocess.DEVNULL)
 
     def _wait_cdp(self, timeout: float = 40.0) -> str:

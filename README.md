@@ -188,6 +188,30 @@ sudo apt install ./tilion-fortress_151.0.7908.0_amd64.deb && tilion https://exam
 > [!TIP]
 > The SDK ships the compiled build **plus `patches/`**, so you can rebuild the engine yourself and verify every surface correction against the source. Downloads are SHA-256-verified against the release `SHA256SUMS` automatically.
 
+### Versions
+
+Fortress ships on **two Chromium bases** — pick your trade-off between blend-in and currency:
+
+| Channel | Chromium | When to use |
+|---|---|---|
+| **`stable`** *(default)* | **149** | Recommended — matches the Chrome version the mass of real users run, so it blends in best |
+| **`latest`** | **151** | Newest engine (reports a version slightly ahead of stable) |
+
+```python
+Fortress().start()                     # Python: stable (149) by default
+Fortress(channel="latest").start()     # opt into 151
+```
+```js
+await Fortress.launch();               // Node: stable (149) by default
+await Fortress.launch({ channel: "latest" });
+```
+```bash
+docker run --rm -p 9222:9222 tilion/fortress:149   # or :151
+# or set FORTRESS_CHANNEL=latest for either SDK
+```
+
+Native binaries: **Linux x64** (both versions) + **Windows x64** (151); Windows-149 and macOS run via the Docker image.
+
 ### Drop it into your AI agent
 
 Fortress is the browser your agent drives: raw CDP on `:9222`, no stealth plugins to wire up. There are two ways in.
