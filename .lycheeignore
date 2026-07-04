@@ -12,6 +12,10 @@ img\.shields\.io
 hub\.docker\.com
 star-history\.com
 
+# npm's registry returns 403 Forbidden to non-browser crawlers (bot protection), so the
+# package page is not fetchable from CI. PyPI, by contrast, is checked normally.
+npmjs\.com
+
 # "Ask an assistant" deep links — interactive endpoints that block bots or require login.
 ^https://chatgpt\.com
 ^https://claude\.ai
