@@ -1,0 +1,30 @@
+name: verify-release
+
+# When a release is published, confirm it is internally consistent — every expected bundle
+# asset is present and SHA256SUMS matches — so a broken release fails loudly here instead of
+# in a user's pip/npm install. Also runnable on demand against any existing tag.
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: release tag to verify (e.g. v151.0.7908.0)
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: verify release assets
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Verify release assets + SHA256SUMS
+        run: python tools/verify_release.py "${{ github.event.release.tag_name || inputs.tag }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

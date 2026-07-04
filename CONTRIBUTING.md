@@ -33,6 +33,9 @@ a runtime library.
   `build/apply-patches.sh`, so always add your patch to `series`.
 - **`build/apply-patches.sh`** applies the series onto a Chromium `src/`.
 - **`tools/gauntlet.py`** — the live detection harness (CreepJS / Sannysoft / BrowserScan).
+- **`tools/verify_release.py <tag>`** — checks a published release is internally consistent:
+  every expected bundle asset is present and `SHA256SUMS` matches the SDK tables. Runs
+  automatically when a release is published; run it locally with `--full` to re-hash assets.
 
 Full build instructions: [docs/BUILD_NATIVE.md](docs/BUILD_NATIVE.md). Expect a multi-hour first
 compile; incremental rebuilds after a one-line patch are minutes.
