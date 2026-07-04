@@ -26,6 +26,10 @@ jobs:
           python-version: "3.12"
       - name: Lint the patch series
         run: python tools/check_patches.py
+      - name: Install pytest
+        run: python -m pip install --upgrade pip pytest
+      - name: Test the linter
+        run: python -m pytest tools/tests -q
 
   sdk-python:
     name: python sdk tests
