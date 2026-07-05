@@ -31,4 +31,16 @@ enable_widevine = false
 target_cpu = "x64"
 target_os = "linux"
 
+# Broad-CPU compatibility (issue #20). Chromium 151's bundled clang auto-vectorizes
+# some baseline paths (e.g. PartitionAlloc's bucket-index lookup) with post-Haswell
+# instructions — LZCNT/TZCNT (BMI/ABM), AVX2, FMA. On pre-2013 CPUs that lack them
+# (e.g. Intel Sandy Bridge / Xeon E5-2600 v1) LZCNT/TZCNT silently decode as BSR/BSF
+# with different zero-input semantics, corrupting a bucket index and tripping a
+# PA_CHECK at static-init -> SIGTRAP before main() (no runtime flag can intervene).
+# Stock Chrome runs on these CPUs, so we pin the whole tree back to the SSE4.2 (x86-64-v2)
+# baseline. Keeps SSE4.2/POPCNT; drops AVX/AVX2/BMI/FMA. Costs ~nothing in practice and
+# restores compatibility down to ~Nehalem-era hardware.
+extra_cflags = "-mno-avx -mno-avx2 -mno-bmi -mno-bmi2 -mno-lzcnt -mno-fma -mno-f16c -mno-movbe"
+extra_cxxflags = "-mno-avx -mno-avx2 -mno-bmi -mno-bmi2 -mno-lzcnt -mno-fma -mno-f16c -mno-movbe"
+
 # ThinLTO is on by default for official builds; left implicit.

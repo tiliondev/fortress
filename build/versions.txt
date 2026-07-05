@@ -1,0 +1,12 @@
+# Fortress supported Chromium versions (build with build/build-version.sh <version>).
+# Pin the EXACT current stable patch from https://chromiumdash.appspot.com/releases before a build.
+#
+# major  version           channel   role
+149      149.0.7827.200     stable    RECOMMENDED default — matches the mass of real users (stealth)
+151      151.0.7908.0       ahead     newest features; note: ahead-of-stable trips some UA checks
+#
+# Notes:
+#  - 149 is current/near-stable and where most real Chrome users sit (staged rollout + enterprise
+#    lag), so it is the better stealth default per the version-realism research.
+#  - 151 stays available for anyone who wants the newest engine, but reports a version ahead of
+#    stable (a soft tell on rebrowser). Ship both; default installers/SDK to 149.
