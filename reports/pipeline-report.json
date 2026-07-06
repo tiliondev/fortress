@@ -1,0 +1,22 @@
+{
+  "repo": "fortress",
+  "production_score": 88,
+  "architecture_score": 89,
+  "security_score": 85,
+  "documentation_score": 95,
+  "testing_score": 80,
+  "automation_score": 90,
+  "performance_score": 85,
+  "deployment_score": 90,
+  "github_quality_score": 90,
+  "branding_score": 95,
+  "status": "DEGRADED",
+  "last_audit": "2026-07-05",
+  "benchmark_summary": {
+    "cold_launch_seconds": 0.27,
+    "rss_mb": 1391,
+    "chromium_version": "151.0.7908.0"
+  },
+  "community_status": "ACTIVE",
+  "adoption_status": "GROWING"
+}

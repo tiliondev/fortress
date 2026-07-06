@@ -16,7 +16,7 @@ Stealth Chromium engine
 <sub>**Blink · V8 · BoringSSL** patched in-tree · **ANGLE / D3D11**-backed WebGL · **JA3/JA4-coherent** TLS · **monthly** upstream rebase · **reproducible, gauntlet-gated** releases</sub>
 
 <table align="center"><tr>
-<td align="center" width="150"><h3>34</h3><sub>single-surface<br/>C++ patches</sub></td>
+<td align="center" width="150"><h3>35</h3><sub>single-surface<br/>C++ patches</sub></td>
 <td align="center" width="150"><h3>0%</h3><sub>CreepJS<br/>headless / stealth</sub></td>
 <td align="center" width="160"><h3><code>[native&nbsp;code]</code></h3><sub>across every<br/>realm</sub></td>
 <td align="center" width="150"><h3>BSD-3</h3><sub>open engine,<br/>rebuild it yourself</sub></td>
@@ -53,7 +53,7 @@ Every spoofed getter *is* a C++ getter: `toString` returns `[native code]`, **re
 <td width="33%" valign="top">
 
 #### Auditable patches
-34 small single-purpose diffs in `patches/`. Read one in a minute; rebuild the engine with one script.
+35 small single-purpose diffs in `patches/`. Read one in a minute; rebuild the engine with one script.
 
 </td>
 <td width="33%" valign="top">
@@ -364,7 +364,7 @@ export CHROMIUM_VERSION=$(cat CHROMIUM_VERSION)
 build/build.sh                         # depot_tools, sync the tag, apply patches, gn gen, ninja
 build/rebase-monthly.sh 152.0.XXXX.0   # bump + 3-way apply + rebuild + gauntlet-gate
 ```
-Output: `out/Fortress/chrome`. The fork is 34 small single-surface patches (`patches/`), so most re-apply cleanly across upstream releases; the gauntlet then gates the release on any regression.
+Output: `out/Fortress/chrome`. The fork is 35 small single-surface patches (`patches/`), so most re-apply cleanly across upstream releases; the gauntlet then gates the release on any regression.
 
 | Platform | Status |
 |---|---|
@@ -398,7 +398,7 @@ docker inspect --format '{{index .RepoDigests 0}}' tilion/fortress:151.0.7908.0
 # compare the printed sha256:... against the digest in the GitHub Release notes
 ```
 
-**Or trust nothing and rebuild it.** The whole fork is 34 readable patches in `patches/`; `build/build.sh` reproduces the binary from Chromium source, so you can diff what you built against what we ship.
+**Or trust nothing and rebuild it.** The whole fork is 35 readable patches in `patches/`; `build/build.sh` reproduces the binary from Chromium source, so you can diff what you built against what we ship.
 
 ---
 
@@ -452,7 +452,7 @@ docker inspect --format '{{index .RepoDigests 0}}' tilion/fortress:151.0.7908.0
 <details><summary><b>Repo layout</b></summary>
 
 ```
-patches/     34 per-surface C++ patches (+ series), the source of truth for the fork
+patches/     35 per-surface C++ patches (+ series), the source of truth for the fork
 build/       args.gn, build.sh, apply-patches.sh, rebase-monthly.sh, windows/, macos/
 packaging/   tilion launcher, fonts.conf, Dockerfile, .deb + bundle builders
 fonts/       33 metric-compatible Windows-named fonts (incl. color emoji)
