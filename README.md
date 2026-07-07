@@ -73,6 +73,21 @@ One binary, a **coherence-checked** Windows identity; `--uxr-*` switches overrid
 
 ---
 
+## 🆕 What's new — 151.0.7908.0 · Engine Refresh
+
+**Released.** Per-launch coherent personas, hardened.
+
+- **Per-locale keyboard** (QWERTY / QWERTZ / AZERTY) · **per-persona media devices** · a full **delivery-parity** coherence pass.
+- Platform ↔ GPU ↔ timezone ↔ language ↔ voices ↔ keyboard move as **one coherent real device** — on every launch, from a single binary.
+- **Native-code parity** (`toString()` stays `[native code]`), **realm-invariant** (main / worker / iframe) — coherence compiled into the browser, not patched in JavaScript.
+
+```bash
+pip install -U tilion-fortress       # or:  docker run --rm -p 9222:9222 tilion/fortress:latest
+```
+
+**[→ full release notes](https://github.com/tiliondev/fortress/releases/tag/v151.0.7908.0)**
+
+
 ## Contents
 
 | | |
