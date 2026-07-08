@@ -1,0 +1,40 @@
+name: star history
+
+# star-history.com caches repo data for 24h, which makes the README chart lag
+# a full day behind during a star spike. This renders the chart ourselves from
+# live stargazer data (tools/star_history.py) and commits the SVGs, so the
+# README stays at most an hour behind. The script's output is deterministic
+# per star count, so no-change hours produce no commit.
+on:
+  schedule:
+    - cron: "17 * * * *" # hourly, off the :00 rush
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: star-history
+  cancel-in-progress: true
+
+jobs:
+  render:
+    name: render star chart
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Render SVGs
+        run: python3 tools/star_history.py tiliondev/fortress docs/assets
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Commit if changed
+        run: |
+          if git diff --quiet -- docs/assets/star-history-dark.svg docs/assets/star-history-light.svg; then
+            echo "chart unchanged, nothing to commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/assets/star-history-dark.svg docs/assets/star-history-light.svg
+          git commit -m "chore: refresh star-history chart"
+          git push
