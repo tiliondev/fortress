@@ -1,17 +1,17 @@
-# Fortress MCP — a stealth browser for AI agents
+# Fortress MCP: a stealth browser for AI agents
 
-> **Beta** · 29 tools · runs **local & free** · **hosted cloud coming soon**
+> **Beta** · 29 tools · local and free · hosted cloud coming soon
 >
-> 📖 **[Full usage guide → mcp/USAGE.md](USAGE.md)** — every tool, the block-handling decision model, workflow recipes, and config.
+> Full usage guide: **[USAGE.md](USAGE.md)** covers every tool, the block-handling decision model, workflow recipes, and config.
 
-An [MCP](https://modelcontextprotocol.io) server that gives any AI agent the **Fortress
-stealth engine** the moment it gets blocked. When a fetch hits Cloudflare, DataDome,
-PerimeterX, a 403, or a CAPTCHA, the agent calls these tools and gets the page — driving a
-real, recompiled Chromium on your own machine and IP.
+An [MCP](https://modelcontextprotocol.io) server that gives any AI agent the Fortress
+stealth engine the moment a fetch gets blocked. When a request hits Cloudflare, DataDome,
+PerimeterX, a 403, or a CAPTCHA, the agent calls these tools and gets the page. The tools
+drive a real, recompiled Chromium on your own machine and IP.
 
 <p align="center"><img src="demo.gif" alt="Same site, same prompt: a vanilla browser is blocked by PerimeterX while an agent with the Fortress MCP returns clean JSON" width="760"/></p>
 
-<sub><i>Real, dated run against <b>stockx.com</b> (PerimeterX). A stock browser gets <b>HTTP 403 — “Access denied”</b>; an agent with the Fortress MCP returns clean JSON. Reproduce with the demo scripts in the framework repo.</i></sub>
+<sub><i>Real, dated run against <b>stockx.com</b> (PerimeterX). A stock browser gets <b>HTTP 403 ("Access denied")</b>; an agent with the Fortress MCP returns clean JSON. Reproduce with the demo scripts in the framework repo.</i></sub>
 
 ## Install
 
@@ -74,13 +74,13 @@ server, then confirm with `get_egress_info`.
 
 ## Add to your client
 
-**Claude Desktop / Cursor** — add to the MCP config:
+**Claude Desktop / Cursor**: add to the MCP config:
 
 ```json
 { "mcpServers": { "fortress": { "command": "tilion-mcp" } } }
 ```
 
-**Cline / Windsurf** (VS Code settings → MCP servers):
+**Cline / Windsurf** (VS Code settings, MCP servers):
 ```json
 { "fortress": { "command": "tilion-mcp" } }
 ```
@@ -89,38 +89,37 @@ If `tilion-mcp` isn't on PATH, use `"command": "python", "args": ["-m", "tilion.
 
 ## The 29 tools
 
-*Full per-tool detail + workflows in [USAGE.md](USAGE.md).*
+*Full per-tool detail and workflows in [USAGE.md](USAGE.md).*
 
 | Tool | What the agent uses it for |
 |---|---|
 | `fetch_protected_page` | get a page behind Cloudflare / DataDome / 403 / CAPTCHA |
-| `read_page` | clean reader-mode **markdown of any page** (+ tables) |
+| `read_page` | clean reader-mode markdown of any page, tables included |
 | `extract_page` | markdown + tables + metadata (or a schema-shaped record) |
-| `extract_document` | extract a PDF/DOCX/XLSX/CSV/HTML file (path or URL) → markdown |
+| `extract_document` | convert a PDF/DOCX/XLSX/CSV/HTML file (path or URL) to markdown |
 | `page_elements` | the page's buttons / links / fields / headings |
 | `click_button` · `fill_field` · `press_key` | drive a form by visible text / selector / key |
 | `current_page` · `get_page_html` · `evaluate_js` · `wait_for` | inspect / script / wait on the working page |
-| `crawl_site` | crawl a whole site (auto-handles SPA/JS) → pages + sitemap |
+| `crawl_site` | crawl a whole site (handles SPA/JS) into pages and a sitemap |
 | `recon_site_apis` | reverse-engineer a site's private XHR/JSON API (secret-scrubbed) |
-| `detect_waf` | identify the anti-bot vendor (Cloudflare/DataDome/PerimeterX/Akamai/Kasada) + strategy |
+| `detect_waf` | identify the anti-bot vendor (Cloudflare/DataDome/PerimeterX/Akamai/Kasada) and a strategy |
 | `run_browser_task` · `list_browser_tasks` | 20 multi-step flows: login, paginate, infinite-scroll, checkout… |
 | `search_web` | web search through the stealth browser (no SERP API) |
 | `screenshot_page` · `save_page` · `download_file` | capture PNG / export pdf·html·text / download a file |
-| `get_cookies` · `save_profile` · `load_profile` | read cookies · persist/restore an authenticated session |
+| `get_cookies` · `save_profile` · `load_profile` | read cookies · persist and restore an authenticated session |
 | `list_tabs` · `close_tab` | manage open tabs |
-| `get_stealth_cdp_endpoint` | a CDP url to point your OWN browser-use / Playwright / Puppeteer at |
-| `solve_captcha` | detect + solve a reCAPTCHA/hCaptcha/Turnstile (needs `CAPTCHA_API_KEY`) |
-| `get_egress_info` | report proxy/region + the real public IP the target sees (verify residential egress) |
+| `get_stealth_cdp_endpoint` | a CDP URL for your own Playwright, Puppeteer, or browser-use setup |
+| `solve_captcha` | detect and solve a reCAPTCHA/hCaptcha/Turnstile (needs `CAPTCHA_API_KEY`) |
+| `get_egress_info` | report proxy/region and the real public IP the target sees (verify residential egress) |
 
-Tools are **annotated** (`readOnlyHint` / `destructiveHint`) so clients auto-approve reads
-and gate writes. Every tool is **timeout- and SSRF-guarded**, caps its output, and returns a
-structured error instead of hanging. The browser is **pre-warmed at startup**, so the first
-call is ~100 ms.
+Tools carry `readOnlyHint`/`destructiveHint` annotations, so clients auto-approve reads and
+gate writes. Every tool is timeout- and SSRF-guarded, caps its output, and returns a
+structured error instead of hanging. The browser is pre-warmed at startup, so the first
+call takes about 100 ms.
 
-## Why reach for it — benchmarks
+## Benchmarks
 
-Real head-to-head — an agent with only its built-in web fetch vs. the same task through the
-Fortress MCP:
+The same tasks, run once with an agent's built-in web fetch and again through the Fortress MCP:
 
 | Task | Built-in web fetch | **Fortress MCP** |
 |------|--------------------|------------------|
@@ -129,7 +128,7 @@ Fortress MCP:
 | Wikipedia article | ✗ 403 to bots | **✓ 52 k markdown** |
 | Hacker News top stories | ✓ 30 · 24 s | **✓ 30 · 2 s** (~12× faster) |
 
-Fingerprint suites: **Sannysoft all-green · CreepJS 0% headless · BrowserScan “Normal.”**
+Fingerprint suites: Sannysoft all green, CreepJS 0% headless, BrowserScan "Normal".
 
 ## Configuration (env)
 
@@ -139,16 +138,16 @@ Fingerprint suites: **Sannysoft all-green · CreepJS 0% headless · BrowserScan 
 | `TILION_MCP_HEADLESS` | `1` | `0` to show a visible window |
 | `TILION_ALLOW_PRIVATE_EGRESS` | `0` | `1` to allow localhost / private IPs (SSRF guard off) |
 | `TILION_MCP_TOOL_TIMEOUT` | `120` | per-tool wall-clock cap (seconds) |
-| `TILION_BASE_URL` / `TILION_API_KEY` | — | hosted mode (**coming soon**) |
-| `TILION_PROXY` | — | egress proxy `http://user:pass@host:port` (residential/mobile) |
-| `TILION_REGION` | — | egress region hint (e.g. `us`) — aligns timezone/locale to the IP |
-| `CAPTCHA_API_KEY` | — | solver key; `fetch` then auto-solves + `solve_captcha` works |
+| `TILION_BASE_URL` / `TILION_API_KEY` | (none) | hosted mode (coming soon) |
+| `TILION_PROXY` | (none) | egress proxy `http://user:pass@host:port` (residential/mobile) |
+| `TILION_REGION` | (none) | egress region hint (e.g. `us`); aligns timezone and locale to the IP |
+| `CAPTCHA_API_KEY` | (none) | solver key; enables auto-solve during fetches and the `solve_captcha` tool |
 | `CAPTCHA_PROVIDER` | `2captcha` | `2captcha` \| `anticaptcha` \| `capsolver` |
 
 ## How it works
 
-`tilion-mcp` → the `tilion` framework (local mode) → attaches over CDP to the Fortress
-engine. Stealth is applied **natively in the C++ engine**, so there's no detectable JS
+`tilion-mcp` calls the `tilion` framework in local mode, which attaches over CDP to the
+Fortress engine. Stealth is applied natively in the C++ engine, so there is no detectable JS
 injection. One warm browser backs every tool for the server's lifetime.
 
 Registry manifests: [`server.json`](server.json) (MCP registry) · [`smithery.yaml`](smithery.yaml) (Smithery).
@@ -156,5 +155,5 @@ Agent skill: [`skill/SKILL.md`](skill/SKILL.md).
 
 ## License
 
-BSD-3-Clause (the MCP server and framework funnel). The engine binary ships via
+BSD-3-Clause covers the MCP server and the `tilion` framework. The engine binary ships via
 `tilion-fortress`. Hosted cloud with residential egress is coming soon.
