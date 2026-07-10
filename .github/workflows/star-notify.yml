@@ -8,4 +8,8 @@ jobs:
   notify:
     runs-on: ubuntu-latest
     steps:
-      - run: curl -d "⭐ ${{ github.actor }} starred ${{ github.repository }}" ntfy.sh/arman-fortress-stars-k4p9x
+      - run: |
+          curl -s -X POST "https://agentpush.fly.dev/t/t_klywrkd34swd3sql" \
+            -H "X-Title: New star on fortress" \
+            -H "X-Priority: high" \
+            -d "${{ github.actor }} starred ${{ github.repository }}"
