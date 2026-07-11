@@ -117,6 +117,30 @@ gate writes. Every tool is timeout- and SSRF-guarded, caps its output, and retur
 structured error instead of hanging. The browser is pre-warmed at startup, so the first
 call takes about 100 ms.
 
+## Token cost
+
+Handing an agent a raw web page is expensive. The "Web scraping" Wikipedia article is
+68,240 tokens of HTML; Nike's homepage is 353,000 (tiktoken cl100k_base). An agent that
+drops a page into context pays that before it reads a word.
+
+A built-in web fetch handles the easy case well. It summarizes readable pages cheaply and
+clears anti-bot on many sites. It returns nothing on JavaScript-rendered pages and some hard
+walls, and the agent then falls back to the raw HTML and still fails. That gap is where the
+Fortress MCP earns its place: one call, bounded clean output, on pages the built-in tool
+cannot read. Measured on one residential IP:
+
+| Page | Raw HTML | Built-in web fetch | Fortress MCP |
+|---|---|---|---|
+| Wikipedia (Web scraping) | 68,240 tok | ~950 tok summary | full clean markdown |
+| Nike homepage | 353,241 tok | HTTP 403 | ~700 tok clean text |
+| quotes.toscrape.com/js | empty shell | "NO QUOTES FOUND" | 285 tok, all 10 quotes |
+| Ticketmaster | 151,946 tok | cleared | cleared |
+| Indeed | 403 to a naive client | cleared | cleared |
+| Hacker News | 11,765 tok | cleared | cleared |
+
+Reproduce it with [`benchmark_tokens.py`](benchmark_tokens.py): it counts the tokens each path
+returns for a list of URLs and flags which ones a naive client is blocked on.
+
 ## Benchmarks
 
 The same tasks, run once with an agent's built-in web fetch and again through the Fortress MCP:
