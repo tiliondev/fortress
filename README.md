@@ -74,7 +74,7 @@ One binary, a **coherence-checked** Windows identity; `--uxr-*` switches overrid
 
 ---
 
-## 🆕 What's new — 151.0.7908.0 · Engine Refresh
+## What's new — 151.0.7908.0 · Engine Refresh
 
 **Released.** Per-launch coherent personas, hardened.
 
