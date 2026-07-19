@@ -75,7 +75,15 @@ p="DEPS"; s=open(p).read()
 o="infra/3pp/tools/gperf/${{platform}}"; n="infra/3pp/tools/gperf/linux-amd64"
 open(p,"w").write(s.replace(o,n)) if o in s else None
 PY
-gclient sync -D --no-history
+# gclient sync pulls hundreds of git/CIPD deps and can hit transient network
+# failures (busy mirrors, HTTP 429 rate limiting). Retry with backoff; each retry
+# resumes where the last left off, so only the incomplete deps are re-fetched.
+for attempt in 1 2 3 4 5; do
+  gclient sync -D --no-history && break
+  [ "$attempt" = 5 ] && { echo "gclient sync failed after 5 attempts"; exit 1; }
+  echo "[$(ts)] gclient sync attempt $attempt failed (transient?); retrying in $((attempt*30))s"
+  sleep $((attempt*30))
+done
 gclient runhooks
 ./build/install-build-deps.sh --no-prompt || true
 # Native arm64 gperf at the path blink's scripts.gni expects.
