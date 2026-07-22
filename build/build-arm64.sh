@@ -28,8 +28,9 @@ ts(){ date -u +%H:%M:%S; }
 [ "$(uname -m)" = "aarch64" ] || { echo "This script is for aarch64 hosts."; exit 1; }
 echo "==> Fortress arm64 build | Chromium $VER | workdir $WORK"
 
-# 0. Host packages: Chromium's -dev libs (needed since we build against host libs,
-#    use_sysroot=false), plus the toolchain build prerequisites.
+# 0. Host packages: toolchain build prerequisites. The target libraries come from
+#    Chromium's arm64 sysroot (installed below), so the -dev libs here are only
+#    belt-and-suspenders for host tools; harmless to keep.
 echo "[$(ts)] apt prerequisites"
 sudo apt-get update -y
 sudo apt-get install -y \
@@ -86,6 +87,11 @@ for attempt in 1 2 3 4 5; do
 done
 gclient runhooks
 ./build/install-build-deps.sh --no-prompt || true
+# Install Chromium's bundled arm64 sysroot (Debian bullseye, glibc 2.31) and build
+# against it (use_sysroot=true below) so the binary links to old glibc/libgcc and
+# runs on Debian 11/12/13+ — not just this host's glibc. runhooks skips it when the
+# host arch != target, so install it explicitly.
+python3 build/linux/sysroot_scripts/install-sysroot.py --arch=arm64
 # Native arm64 gperf at the path blink's scripts.gni expects.
 mkdir -p third_party/gperf/cipd/bin
 cp -f "$(command -v gperf)" third_party/gperf/cipd/bin/gperf
@@ -160,7 +166,7 @@ rustc_version = \"$RUSTC_VER\"
 rust_bindgen_root = \"//third_party/llvm-build/Release+Asserts\"
 rust_force_head_revision = true
 toolchain_supports_rust_thin_lto = false
-use_sysroot = false
+use_sysroot = true
 use_siso = false
 treat_warnings_as_errors = false"
 autoninja -C "out/$OUT" chrome chrome_crashpad_handler
