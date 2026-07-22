@@ -13,9 +13,9 @@ ok=0; fail=0; failed=()
 while IFS= read -r rel; do
   [ -z "$rel" ] && continue
   p="$REPO/$rel"
-  if git apply --3way --whitespace=nowarn "$p" 2>/dev/null; then
+  if git apply --recount --3way --whitespace=nowarn "$p" 2>/dev/null; then
     ok=$((ok+1)); printf '  [ok]   %s\n' "$(basename "$rel")"
-  elif git apply --check "$p" 2>/dev/null && git apply --whitespace=nowarn "$p" 2>/dev/null; then
+  elif git apply --recount --check "$p" 2>/dev/null && git apply --recount --whitespace=nowarn "$p" 2>/dev/null; then
     ok=$((ok+1)); printf '  [ok]   %s\n' "$(basename "$rel")"
   else
     fail=$((fail+1)); failed+=("$rel"); printf '  [FAIL] %s\n' "$(basename "$rel")"
