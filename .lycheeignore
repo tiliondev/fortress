@@ -10,7 +10,6 @@
 # Badge / image hosts that rate-limit CI crawlers; a stale badge is cosmetic, not a 404.
 img\.shields\.io
 hub\.docker\.com
-star-history\.com
 
 # npm's registry returns 403 Forbidden to non-browser crawlers (bot protection), so the
 # package page is not fetchable from CI. PyPI, by contrast, is checked normally.
