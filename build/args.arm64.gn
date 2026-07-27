@@ -1,0 +1,50 @@
+# Fortress — official, max-stealth Chromium build args (GN) for linux/arm64.
+# Used by build/build.sh on aarch64 hosts:
+#   gn gen out/Fortress --args="$(cat build/args.arm64.gn)"
+#
+# This is the arm64 sibling of build/args.gn. Every stealth-relevant knob is
+# IDENTICAL to the x64 file — the ONLY differences are architecture-bound:
+#   1. target_cpu = "arm64"   (was "x64")
+#   2. no x86 extra_cflags     (the SSE/AVX baseline block below is x86-only)
+# All 34 C++ stealth patches are architecture-neutral (JS fingerprint surfaces:
+# navigator/screen/canvas/webgl/webaudio/webrtc/timezone/fonts) and apply as-is.
+
+# Official, optimized, single-binary (NOT a component/dev build).
+is_official_build = true
+is_component_build = false
+is_debug = false
+dcheck_always_on = false
+
+# Stripped — no symbols (smaller, fewer tells).
+symbol_level = 0
+blink_symbol_level = 0
+
+# Real media: proprietary codecs + Chrome ffmpeg branding so canPlayType('video/mp4')
+# returns "probably" (stock Chromium returns "" — a headless tell).
+proprietary_codecs = true
+ffmpeg_branding = "Chrome"
+
+# De-brand: build as Chromium (no Google branding); the consumer "Google Chrome"
+# identity is applied at runtime via --uxr-* switches, not baked in.
+is_chrome_branded = false
+
+# No PGO profile dependency (we build from source without Google's PGO data).
+chrome_pgo_phase = 0
+
+# Trim weight / attack surface.
+enable_nacl = false
+enable_widevine = false
+
+# Target: native linux/arm64 (aarch64). Runs under Lima/QEMU on Apple Silicon.
+target_cpu = "arm64"
+target_os = "linux"
+
+# Broad-CPU compatibility: N/A on arm64.
+# The x64 args.gn pins the tree back to the SSE4.2 (x86-64-v2) baseline via
+# -mno-avx/-mno-bmi/-mno-lzcnt/... to keep pre-Haswell Intel CPUs from tripping a
+# PA_CHECK at static init. Those are x86-only flags (clang errors on them for
+# aarch64) and the failure mode doesn't exist on ARM. Chromium's default arm64
+# baseline is ARMv8-A, already the broadest target — Apple M-series (ARMv8.5+/v9)
+# and QEMU's cortex-a/max models are all supersets — so NO extra_cflags are needed.
+
+# ThinLTO is on by default for official builds; left implicit.

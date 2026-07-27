@@ -10,7 +10,13 @@
 set -euo pipefail
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 WORK="${1:-$REPO/.fortress-build}"
-ARGS_FILE="$REPO/build/args.gn"
+# Select GN args by host architecture. args.arm64.gn is identical to args.gn
+# except for the architecture-bound bits (target_cpu + no x86 baseline cflags);
+# all stealth patches are architecture-neutral. Override with ARGS_FILE=... .
+case "$(uname -m)" in
+  aarch64|arm64) ARGS_FILE="${ARGS_FILE:-$REPO/build/args.arm64.gn}" ;;
+  *)             ARGS_FILE="${ARGS_FILE:-$REPO/build/args.gn}" ;;
+esac
 OUT="Fortress"
 VER="${CHROMIUM_VERSION:-$(cat "$REPO/CHROMIUM_VERSION")}"
 export TMPDIR="${TMPDIR:-$WORK/tmp}"
