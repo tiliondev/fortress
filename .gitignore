@@ -2,6 +2,7 @@
 out/
 src/
 depot_tools/
+.fortress-build/
 *.tar.gz
 *.deb
 *.AppImage
