@@ -11,7 +11,7 @@ drive a real, recompiled Chromium on your own machine and IP.
 
 <p align="center"><img src="demo.gif" alt="Same site, same prompt: a vanilla browser is blocked by PerimeterX while an agent with the Fortress MCP returns clean JSON" width="760"/></p>
 
-<sub><i>Real, dated run against <b>stockx.com</b> (PerimeterX). A stock browser gets <b>HTTP 403 ("Access denied")</b>; an agent with the Fortress MCP returns clean JSON. Reproduce with the demo scripts in the framework repo.</i></sub>
+<sub><i>Real, dated run against <b>stockx.com</b> (PerimeterX). A stock browser gets <b>HTTP 403 ("Access denied")</b>; an agent with the Fortress MCP returns clean JSON.</i></sub>
 
 ## Install
 
@@ -58,7 +58,7 @@ supply is a running Docker daemon.
 
 | Pitfall | What happens, and the fix |
 |---|---|
-| Setting `FORTRESS_CHANNEL=latest` | That channel points at `tilion/fortress:151`, which is not published to Docker Hub, so the pull 404s and the engine never starts. Stay on the default `stable` channel, `tilion/fortress:149`. Native Linux and Windows are unaffected, since they fetch the GitHub release rather than the image. |
+| Setting `FORTRESS_CHANNEL=latest` | Stay on the default `stable` channel, `tilion/fortress:149`, for Docker. Native Linux and Windows are unaffected, since they fetch the GitHub release rather than the image. |
 | A leftover Docker Desktop credential helper | `docker pull` fails with `docker-credential-desktop … executable file not found`. Open `~/.docker/config.json` and delete the `"credsStore": "desktop"` line. |
 | Worrying about the platform warning | `The requested image's platform (linux/amd64) does not match the detected host platform (linux/arm64/v8)` is expected on Apple Silicon and harmless. The amd64 engine runs under Rosetta, a little slower than native Linux. |
 | Running two `tilion-mcp` servers at once | Each launches a Fortress container on host port `9222`, so the second fails with `docker … exit status 125` (port already allocated). Run one server per machine. |
@@ -179,5 +179,6 @@ Agent skill: [`skill/SKILL.md`](skill/SKILL.md).
 
 ## License
 
-BSD-3-Clause covers the MCP server and the `tilion` framework. The engine binary ships via
+The MCP server is licensed under the Fortress Source Available License 1.1 (see the repository
+[LICENSE](../LICENSE)); earlier BSD releases keep their BSD terms. The engine binary ships via
 `tilion-fortress`. Hosted cloud with residential egress is coming soon.

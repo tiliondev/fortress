@@ -26,11 +26,11 @@ Requires Python available on PATH (the shim prefers [`uv`](https://astral.sh/uv)
 
 ## What you get
 
-26 tools: `fetch_protected_page`, `read_page`, `extract_page`, `crawl_site`,
+29 tools: `fetch_protected_page`, `read_page`, `extract_page`, `crawl_site`,
 `recon_site_apis`, `search_web`, `run_browser_task`, `screenshot_page`, `save_page`,
 `save_profile` / `load_profile`, `get_stealth_cdp_endpoint`, and more. Pre-warmed,
 concurrency-safe, timeout- and SSRF-guarded.
 
 Full docs: **https://github.com/tiliondev/fortress/tree/main/mcp**
 
-BSD-3-Clause · hosted cloud with residential egress coming soon.
+Fortress Source Available License 1.1 · hosted cloud with residential egress coming soon.

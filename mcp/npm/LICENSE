@@ -1,0 +1,386 @@
+Fortress Source Available License 1.1
+
+Licensor: Tilion Inc.
+Copyright (c) 2026 Tilion Inc.
+Subscriptions and pricing: https://tilion.com/pricing
+Fortress Subscription Terms: https://tilion.com/terms
+Questions and bug reports: team@tilion.dev
+
+1. Scope and earlier licenses
+
+1.1 This License governs the Fortress-specific patches, SDKs, MCP server and
+launcher, build tooling, packaging, documentation, and corresponding portions
+of binary distributions that Tilion Inc. makes available under this License
+(the "Licensed Software"). It also governs those portions in modified copies
+and derivative works. Exercising any right granted by this License
+constitutes acceptance of its conditions. Use of the Licensed Software for
+an organization is that organization's use under this License and binds it
+to these conditions; no separate acceptance step, signature, or approval is
+required for use that is free under Sections 2 and 3.
+
+1.2 Chromium, bundled fonts, the separately distributed tilion framework,
+and other separately licensed materials are not relicensed by this document.
+Their own terms and notices continue to apply; see NOTICE.
+
+1.3 Earlier Fortress material released under the BSD-3-Clause license
+remains available under that license. Those permissions are not withdrawn,
+including for copies, forks, or derivatives of that earlier material. The
+original BSD license and copyright notice are retained in
+LICENSE-BSD-LEGACY. That license does not grant BSD rights to material
+released only under this License.
+
+1.4 This License is a source-available license, not an open-source license.
+It has no automatic conversion to another license and no scheduled expiry
+of its production-use conditions. It applies from the first distribution of
+a version of the Licensed Software carrying this License on [insert date]
+(the "Effective Date"). A later version of this License does not amend the
+terms granted for a version of the Licensed Software distributed under an
+earlier version.
+
+1.5 Every definition, rule, and Grace Period in this License forms part of
+this License. The Fortress Subscription Terms set only the price, billing,
+payment methods, order records, and coverage of a subscription; nothing in
+them narrows a permission granted here.
+
+2. Free permissions
+
+2.1 Subject to the conditions of this License, Tilion Inc. grants you a
+worldwide, non-exclusive, royalty-free copyright license to copy, inspect,
+modify, create derivative works of, and redistribute the Licensed Software
+in source or binary form, and to use it for any non-production purpose.
+
+2.2 Non-production use is free regardless of funding, revenue, size, or
+whether the user is a commercial business. An Organization whose Cumulative
+Funding is US$500,000 or more, or whose Annual Recurring Revenue exceeds
+US$300,000, or both, may use the Licensed Software for non-production
+development, testing, evaluation, proofs of concept, demonstrations,
+education, and research without a subscription and without contacting
+Tilion Inc. These permissions extend to employees, contractors, and service
+providers performing those non-production activities on that Organization's
+behalf.
+
+2.3 The Licensed Software requires a license key to run. A free key is issued
+to any person who signs in at https://tilion.dev/activate with an email
+address, GitHub account, or Google account. No payment or sales contact is
+required for permitted use. A key is verified on the user's machine and is
+not checked online. The Licensed Software contains no telemetry, usage
+reporting, heartbeat, or update poll, and makes no connection to any host
+Tilion Inc. controls other than (a) obtaining or refreshing a key when the
+user runs that command, and (b) downloading a release from the source the
+user configures. Activation transmits to Tilion Inc. the sign-in email
+address and provider and no information about use of the Licensed Software.
+A machine without a key may run the Licensed Software for 14 days from its
+first launch.
+
+2.4 Production use is authorized only as provided in Section 3 or in a
+separate written agreement with Tilion Inc.
+
+3. Production use
+
+3.1 The Paid-License Trigger applies only to production use. It does not
+limit the non-production permissions in Section 2, whether or not an
+Organization meets either or both financial thresholds.
+
+3.2 You may make production use of the Licensed Software if any of the
+following applies:
+
+  (a) you are an individual using it solely for personal, non-commercial
+      purposes and not on behalf of a business or other organization;
+
+  (b) your Organization does not meet the Paid-License Trigger;
+
+  (c) the use falls within a Grace Period under Section 4;
+
+  (d) the use is covered by a current Fortress subscription under the
+      Fortress Subscription Terms; or
+
+  (e) the use is settled under Section 6 or falls within the Lapse Grace
+      Period, in which case it is permitted from the day it began and no
+      breach arises from it.
+
+3.3 "Paid-License Trigger" means that your Organization's Cumulative Funding
+is US$500,000 or more, or its Annual Recurring Revenue exceeds US$300,000.
+Exactly US$500,000 in Cumulative Funding meets the Paid-License Trigger.
+Exactly US$300,000 in Annual Recurring Revenue does not exceed its
+threshold.
+
+3.4 Subscription. An Organization that meets the Paid-License Trigger
+requires one Fortress subscription. A subscription covers production use by
+the whole Organization, with no limit on people, machines, containers,
+agents, or browsers. The list price is the same for every subscribing
+Organization and is published at https://tilion.com/pricing; a separate
+written agreement may provide a lower price. A subscription runs in terms of
+three months and renews automatically. Tilion Inc. may change the price or
+the Fortress Subscription Terms by publishing the change and sending it to
+the subscriber's billing contact at least 30 days before a renewal date; the
+change applies from that renewal date and not within a running term. A
+subscriber may cancel at any time by the self-serve method described in the
+Fortress Subscription Terms, with effect from the end of the current term
+and without fee. Duplicate subscriptions held by one Organization are
+refundable pro rata for any unexpired term.
+
+3.5 Obtaining a subscription. Subscriptions are purchased self-serve at
+https://tilion.com/pricing on the Fortress Subscription Terms, accepted by
+click-through, without contact with Tilion Inc. Payment methods and order
+records are described in those Terms. A subscription key is issued at
+purchase; like a free key it is verified on the user's machine and is not
+checked online. Permission under Section 3.2(d) begins when the subscription
+takes effect or an Order is pending, not on installation of the key.
+Eligibility under this Section must be satisfied throughout production use,
+subject to the Grace Periods.
+
+3.6 These conditions apply to every version of the Licensed Software
+distributed under this License, including where an existing user upgrades
+from an earlier BSD-licensed version. Production use of an earlier
+BSD-licensed version does not qualify you for free production use of
+material under this License beyond the Transition Grace Period. Your rights
+in earlier BSD-licensed material are unaffected.
+
+3.7 Permission for production use that is not otherwise permitted begins
+when a subscription covering that use takes effect, subject to its payment
+and other terms, or when a Grace Period applies. Downloading a copy, or
+receiving a copy from a third party, does not itself grant that permission.
+A separate written agreement controls over this License for the use it
+covers, to the extent of any conflict.
+
+4. Definitions and measurement
+
+4.1 "Organization" means the business or other legal entity using the
+Licensed Software, together with every entity that controls it, that it
+controls, or that is under common control with it. "Control" means direct
+or indirect ownership of more than 50% of the voting interests or the power
+to direct management. Financial amounts are aggregated across the
+Organization, excluding transactions within the Organization. An investment
+fund and its other portfolio companies are not part of an Organization by
+reason of the fund's holding alone. A fiscal sponsor or foundation that
+holds funds for a project without the power to direct its management does
+not control it, and such a project is measured by the funds restricted to
+it. An individual conducting a business is an Organization consisting of
+that individual alone; production use by an individual that serves, or
+whose outputs are provided to, an entity the individual controls is that
+entity's use under Section 4.9.
+
+4.2 "Cumulative Funding" means the total gross funding actually received by
+the Organization from outside the Organization since its formation,
+including equity investments, SAFEs, convertible instruments, debt
+financing, and business grants. It excludes revenue from sales of goods or
+services, ordinary trade credit, and funding committed but not received.
+Spending, repaying, or distributing funds does not reduce Cumulative
+Funding. Conversion of an instrument does not count the same funding twice.
+A revolving, receivables, or card facility counts at its highest principal
+outstanding at any time, not at cumulative draws.
+
+4.3 "Annual Recurring Revenue" or "ARR" means twelve times the recurring
+revenue earned in the most recently completed calendar month from
+subscriptions and other ongoing customer arrangements, including recurring
+usage-based fees. Prepaid recurring fees are allocated evenly over the
+period they cover. One-time fees, taxes collected for others, and refunded
+amounts are excluded. Fees paid by the same customer for the same or a
+substantially similar product or service in the measurement month and in at
+least one of the two preceding calendar months are recurring, whatever the
+form of the arrangement or the name of the fee. Before the end of the
+Organization's first calendar month of operations, ARR is its contracted
+monthly recurring fees multiplied by twelve, with longer-period fees
+allocated to months. ARR is measured Organization-wide, not only for
+revenue attributable to Fortress.
+
+4.4 All thresholds are in United States dollars. Non-USD funding is
+converted at the spot exchange rate on the date received; non-USD recurring
+revenue is converted at the spot exchange rate on the final day of the
+measurement month (or on the measurement date for first-month contracted
+fees). The rate source is the US Federal Reserve H.10 rate or the
+Organization's central bank reference rate, chosen once and applied
+consistently. Thresholds are measured on the first day of each calendar
+month and hold for that month.
+
+4.5 "Production use" means executing or operating the Licensed Software in
+live business operations, including internal operational automation and
+providing operational products, services, or data to customers or other
+third parties. Copying, modifying, or redistributing the Licensed Software
+without operating it in production is not production use. An Organization
+whose product, service, or agent launches and drives the Licensed Software
+on a customer's or user's machine as a function of that product is
+operating it in production, in addition to any production use by that
+customer. The name or location of a deployment does not determine whether
+its use is production.
+
+4.6 "Non-production use" means development, testing, evaluation, proofs of
+concept, demonstrations, education, and research that do not serve live
+business operations or deliver operational products, services, or data.
+Non-production use is free for every Organization regardless of funding or
+ARR, without registration, contact, or payment. These examples do not limit
+the permission for non-production use in Section 2.
+
+4.7 "Fortress Subscription Terms" means the terms accepted at purchase or
+renewal of a Fortress subscription, as published at https://tilion.com/terms
+on the day of that purchase or renewal.
+
+4.8 "Order" means a purchase created through the checkout page, the API, or
+the command-line tool that names the legal entity and a billing contact. An
+Order is pending from creation until it is paid, cancelled, or 60 days old,
+whichever comes first.
+
+4.9 On-behalf-of rule. Where you make production use of the Licensed
+Software on behalf of another Organization, including as an employee,
+contractor, consultant, agency, outsourcer, or service provider, that
+Organization must also satisfy Section 3 or be covered by a subscription for
+that production use. A customer's receipt of your generally available
+product or service alone does not make your use "on behalf of" that
+customer; operating a dedicated deployment or performing contracted
+automation for that customer does.
+
+  (a) A product or service is generally available only where it is offered
+      to the public on published terms. Use of a generally available product
+      or service is the seller's use alone, even where each customer
+      supplies its own inputs, such as targets, search terms, or
+      credentials, and receives its own results; those customers are not
+      clients under this Section.
+
+  (b) A deployment is dedicated to a customer only where that customer,
+      rather than your generally available product, specifies its
+      automation targets, workflows, or code. Per-customer isolation,
+      configuration, or hosting of a generally available product is not a
+      dedicated deployment.
+
+  (c) A customer that, alone or with its Organization, supplied more than
+      half of your revenue from a product or service in the measurement
+      month, or that formed or funds you, is a client under this Section
+      and its use is contracted automation.
+
+  (d) "Client" means the Organization whose live business operations a
+      dedicated deployment or contracted automation ultimately serves,
+      through any chain of contracts. "Provider" means every Organization
+      between the client and the Organization executing the Licensed
+      Software. Such use must be permitted as both the provider's use and
+      the client's use: each of them that meets the Paid-License Trigger
+      requires its own subscription, and a subscription in the client's
+      name may be purchased by either party.
+
+  (e) A client that does not itself execute the Licensed Software is not in
+      breach for a provider's use of which it had no knowledge. Its
+      obligation for that use begins on the earlier of its actual knowledge
+      and Tilion Inc.'s written notice to it, and it may cure by obtaining a
+      subscription within 30 days of that date.
+
+4.10 Grace Periods. Production use during a Grace Period is permitted under
+Section 3.2(c). The Grace Periods are:
+
+  (a) Evaluation: an Organization may make production use for 15 days from
+      its first production use of any version of the Licensed Software
+      distributed under this License, measured once for the whole
+      Organization and not restarted by a later version, release, or
+      rebuild. For use under Section 4.9 the period is the provider's, runs
+      once from the provider's first production use for any client, and
+      covers a client only while the client's own period is also running.
+
+  (b) Crossing: each time an Organization first meets the Paid-License
+      Trigger, not having met it on the first day of the preceding month,
+      it may continue production use for 15 days from the end of the month
+      in which the Paid-License Trigger was met, provided that at least
+      twelve months have passed since the end of its last Crossing period.
+      A crossing before the Organization's first production use does not
+      count.
+
+  (c) Lapse: a subscription that ends for non-payment or a missed renewal
+      remains current for 30 days after the end of its term. Production use
+      in that period is licensed and, if the subscription is not restored,
+      is billed at the monthly list price without uplift.
+
+  (d) Transition: an Organization making production use of an earlier
+      BSD-licensed version on the Effective Date has 15 days from the
+      Effective Date.
+
+4.11 A Grace Period extends while an Order covering the use is pending, if
+the Order was created before the period would otherwise end. An Order
+extends a Grace Period once per Organization; later Orders for the same
+Organization do not extend it, and no extension runs past 60 days after the
+first Order's creation. Each Grace Period arises once per Organization,
+except Crossing as provided in Section 4.10(b). Where more than one Grace
+Period applies to the same use they run concurrently and the use is
+permitted until the latest of their end dates; no Grace Period is added to
+the end of another.
+
+5. Redistribution and notices
+
+5.1 When redistributing any Licensed Software, including in modified or
+binary form, you must include a complete copy of this License, retain
+applicable copyright, attribution, and third-party notices, and clearly
+identify your modifications. For binaries, include these documents in the
+distribution or its accompanying materials where recipients can find them.
+
+5.2 Recipients receive permission to the Licensed Software directly under
+this License and must independently satisfy its conditions for their use.
+You may not grant recipients broader rights to Tilion Inc.'s Licensed
+Software than this License permits. Modifying, wrapping, or redistributing
+the Licensed Software does not remove these conditions from the Licensed
+Software it contains. This Section does not restrict separate rights in
+independently created or separately licensed material. Production use of a
+rebuild or derivative is measured by the same tests as production use of
+Tilion Inc.'s own distribution.
+
+6. Reserved rights, settlement, and termination
+
+6.1 All rights not expressly granted are reserved. This License grants no
+rights in Tilion Inc.'s trademarks and implies no endorsement. Accurate
+attribution and the notices required by this License are permitted.
+
+6.2 Production use outside Section 3 is unauthorized from the outset,
+whether or not Tilion Inc. gives notice. Tilion Inc. makes a standing offer
+to settle such use at the monthly list price in force in each month of
+unauthorized production use, plus 25%, counting only months after the last
+applicable Grace Period ended and not covered by a subscription, and limited
+to the 24 months before Tilion Inc.'s first written notice unless the
+Organization made a knowingly false statement to Tilion Inc. about its
+eligibility. The offer may be accepted within 30 days of that notice.
+Creating an Order for the settlement within that period constitutes
+acceptance while the Order is pending. Use so settled is permitted under
+Section 3.2(e). Otherwise Tilion Inc.'s remedies under copyright law are
+unaffected.
+
+6.3 If you materially breach this License, Tilion Inc. may give written
+notice describing the breach. If the breach is not cured, or the use is not
+settled under Section 6.2, within 30 days of that notice, Tilion Inc. may
+terminate your rights under this License by further written notice. No cure
+period is owed for a knowingly false statement to Tilion Inc. A lapse that
+is ended by restoring the subscription, by paying the Lapse Grace Period
+charge, or by settlement under Section 6.2 is not a material breach.
+
+6.4 On termination, you must stop exercising the terminated rights unless
+Tilion Inc. reinstates them in writing. Termination does not affect
+independently held BSD or third-party rights, the rights of recipients who
+comply with this License, or any obligation or claim arising before
+termination. Sections 5, 6.1, 6.4, 7, and 8 survive termination.
+
+7. Warranty and liability
+
+7.1 TO THE EXTENT PERMITTED BY APPLICABLE LAW, THE LICENSED SOFTWARE IS
+PROVIDED "AS IS" AND "AS AVAILABLE". TILION INC. AND CONTRIBUTORS GIVE NO
+EXPRESS OR IMPLIED WARRANTY, INCLUDING ANY WARRANTY OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE, TITLE, OR NON-INFRINGEMENT, AND DO NOT
+WARRANT THAT THE LICENSED SOFTWARE WILL BE ERROR-FREE OR AVAILABLE WITHOUT
+INTERRUPTION.
+
+7.2 TO THE EXTENT PERMITTED BY APPLICABLE LAW, TILION INC. AND CONTRIBUTORS
+ARE NOT LIABLE FOR ANY LOSS OR DAMAGE ARISING FROM THIS LICENSE OR THE
+LICENSED SOFTWARE, INCLUDING LOST PROFITS, LOST DATA, BUSINESS INTERRUPTION,
+AND DIRECT, INDIRECT, INCIDENTAL, SPECIAL, OR CONSEQUENTIAL DAMAGES,
+REGARDLESS OF THE LEGAL THEORY AND WHETHER OR NOT ADVISED OF THE
+POSSIBILITY. THIS SECTION DOES NOT EXCLUDE LIABILITY THAT APPLICABLE LAW
+DOES NOT PERMIT TO BE EXCLUDED, AND DOES NOT ALTER AN EXPRESS COMMITMENT IN
+A SEPARATE WRITTEN AGREEMENT.
+
+8. General
+
+8.1 If any provision of this License is held unenforceable, it is to be
+enforced to the maximum extent permitted and the remaining provisions
+remain in effect.
+
+8.2 Headings are for convenience and do not affect interpretation. The
+words "including" and "such as" introduce examples and do not limit the
+sense of the words preceding them.
+
+8.3 A failure by Tilion Inc. to enforce a provision is not a waiver of that
+provision or of any later breach.
+
+8.4 This License may be distributed in translation for convenience. The
+English text controls.
