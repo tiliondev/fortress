@@ -138,4 +138,3 @@ Setting a handful of flags above pins the surfaces you care about; the engine st
 
 Every one is derived to agree with the others (that's the whole point) and, on snapshot resume, **re-keyed together** so a resumed clone is a genuinely different — but still coherent — machine.
 
-> This document covers the **configuration API**. It intentionally does not describe *how* each surface is implemented — those internals live in the private engine source.
