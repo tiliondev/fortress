@@ -1,20 +1,15 @@
 # Contributing to Fortress
 
-Fortress is open source and open to contributions. Bug fixes, new features, performance work, docs, and tests are all welcome.
+Fortress is source available under the [Fortress Source Available License 1.1](LICENSE). You may read, modify, build, and redistribute it under that license.
 
-## How to contribute
+Fortress does not accept outside contributions. Pull requests are closed without review. This keeps the copyright in the patch set with Tilion Inc., which is what lets us ship signed builds, indemnify subscribers, and keep every release's licence terms fixed.
 
-1. For anything bigger than a small fix, open an issue first so we can agree on the approach before you write code.
-2. Fork the repo and branch from `main`.
-3. Keep the patch focused. One change per PR.
-4. Open a PR describing what changed and why. A maintainer will review it.
+## Found a bug?
 
-Changes to `patches/`, the SDK, packaging, and `.github/workflows/` require maintainer review, see [.github/CODEOWNERS](.github/CODEOWNERS). CI on PRs from forks runs after a maintainer approves the workflow run.
+Email **team@tilion.dev** with what you saw, the Fortress version, and steps to reproduce. Include a small script or a target URL where you can. We read every report, and fixes ship in the regular release cadence.
 
-## Branding is off limits
+For security issues, email **team@tilion.dev** with "security" in the subject line.
 
-The one hard restriction: no PR may add or change branding. This means no third-party attribution, badges, brand strings, logos, or "built with" credits anywhere in the repo. Fortress is not affiliated with any outside party, and PRs implying otherwise will be closed without review. If your change is code, it's welcome; if it touches naming or attribution, it isn't.
+## Branding
 
-## Bug reports
-
-Open an issue for bugs, questions, or feature requests. Reproduction steps help.
+Do not add third-party badges, brand strings, logos, or "built with" credits to redistributed copies. Legally required copyright, attribution, and licence notices must be retained.

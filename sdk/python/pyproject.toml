@@ -8,7 +8,8 @@ version = "151.0.7908.0.post5"
 description = "Install and drive the Fortress stealth Chromium engine. Prebuilt binary, no source."
 readme = "README.md"
 requires-python = ">=3.8"
-license = { text = "BSD-3-Clause" }
+license = { text = "Fortress Source Available License 1.1" }
+license-files = ["LICENSE", "LICENSE-BSD-LEGACY", "NOTICE"]
 authors = [{ name = "arham766" }]
 keywords = ["chromium", "stealth", "browser", "automation", "anti-bot", "fortress", "tilion"]
 
