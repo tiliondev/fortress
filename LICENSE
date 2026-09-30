@@ -32,7 +32,7 @@ released only under this License.
 1.4 This License is a source-available license, not an open-source license.
 It has no automatic conversion to another license and no scheduled expiry
 of its production-use conditions. It applies from the first distribution of
-a version of the Licensed Software carrying this License on [insert date]
+a version of the Licensed Software carrying this License on 30 September 2026
 (the "Effective Date"). A later version of this License does not amend the
 terms granted for a version of the Licensed Software distributed under an
 earlier version.
@@ -69,8 +69,7 @@ Tilion Inc. controls other than (a) obtaining or refreshing a key when the
 user runs that command, and (b) downloading a release from the source the
 user configures. Activation transmits to Tilion Inc. the sign-in email
 address and provider and no information about use of the Licensed Software.
-A machine without a key may run the Licensed Software for 14 days from its
-first launch.
+A machine without a key runs only the public first-generation engine.
 
 2.4 Production use is authorized only as provided in Section 3 or in a
 separate written agreement with Tilion Inc.
