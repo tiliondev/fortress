@@ -1,8 +1,8 @@
 # Fortress Subscription Terms
 
 These Terms govern a Fortress subscription bought from Tilion Inc. at
-https://tilion.dev/pricing. The current version is published at
-https://tilion.dev/terms. They are referenced by the Fortress Source
+https://tilion.com/pricing. The current version is published at
+https://tilion.com/terms. They are referenced by the Fortress Source
 Available License 1.1 (the "License"). The License decides who may use the
 software and when a subscription is needed; these Terms set the price,
 billing, and coverage of a subscription. Nothing here narrows a permission
@@ -28,7 +28,7 @@ much you use the software.
 
 ## 2. Price and term
 
-2.1 The price is published at https://tilion.dev/pricing. There is one price
+2.1 The price is published at https://tilion.com/pricing. There is one price
 for every subscribing Organization. It is US$2,000 per month, excluding
 taxes.
 
@@ -37,7 +37,7 @@ term in advance as chosen at checkout, and renews automatically for further
 three-month terms until cancelled.
 
 2.3 Tilion Inc. may change the price or these Terms by publishing the change
-at https://tilion.dev/pricing and emailing the billing contact at least 30
+at https://tilion.com/pricing and emailing the billing contact at least 30
 days before a renewal date. The change applies from that renewal date and
 never inside a running term. If you do not accept a change, cancel before
 the renewal date and the subscription ends at the end of the current term
@@ -109,7 +109,7 @@ filing. There is no system access, premises access, or third-party audit.
 
 7.1 A subscription includes the software and its releases. It does not
 include support, response times, or a named contact unless bought
-separately as a support package published at https://tilion.dev/pricing.
+separately as a support package published at https://tilion.com/pricing.
 
 7.2 The warranty disclaimer and liability limits in Section 7 of the License
 apply to the subscription. Tilion Inc.'s total liability under these Terms
@@ -134,5 +134,5 @@ that is not already a subscriber, on notice.
 Organization go to the billing email.
 
 8.4 A released version of these Terms is archived at
-https://tilion.dev/terms/archive and never changes; a later version applies
+https://tilion.com/terms/archive and never changes; a later version applies
 only from a renewal after the notice in Section 2.3.

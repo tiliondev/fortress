@@ -2,8 +2,8 @@ Fortress Source Available License 1.1
 
 Licensor: Tilion Inc.
 Copyright (c) 2026 Tilion Inc.
-Subscriptions and pricing: https://tilion.dev/pricing
-Fortress Subscription Terms: https://tilion.dev/terms
+Subscriptions and pricing: https://tilion.com/pricing
+Fortress Subscription Terms: https://tilion.com/terms
 Questions and bug reports: team@tilion.dev
 
 1. Scope and earlier licenses
@@ -108,7 +108,7 @@ threshold.
 requires one Fortress subscription. A subscription covers production use by
 the whole Organization, with no limit on people, machines, containers,
 agents, or browsers. The list price is the same for every subscribing
-Organization and is published at https://tilion.dev/pricing; a separate
+Organization and is published at https://tilion.com/pricing; a separate
 written agreement may provide a lower price. A subscription runs in terms of
 three months and renews automatically. Tilion Inc. may change the price or
 the Fortress Subscription Terms by publishing the change and sending it to
@@ -120,7 +120,7 @@ and without fee. Duplicate subscriptions held by one Organization are
 refundable pro rata for any unexpired term.
 
 3.5 Obtaining a subscription. Subscriptions are purchased self-serve at
-https://tilion.dev/pricing on the Fortress Subscription Terms, accepted by
+https://tilion.com/pricing on the Fortress Subscription Terms, accepted by
 click-through, without contact with Tilion Inc. Payment methods and order
 records are described in those Terms. A subscription key is issued at
 purchase; like a free key it is verified on the user's machine and is not
@@ -212,7 +212,7 @@ ARR, without registration, contact, or payment. These examples do not limit
 the permission for non-production use in Section 2.
 
 4.7 "Fortress Subscription Terms" means the terms accepted at purchase or
-renewal of a Fortress subscription, as published at https://tilion.dev/terms
+renewal of a Fortress subscription, as published at https://tilion.com/terms
 on the day of that purchase or renewal.
 
 4.8 "Order" means a purchase created through the checkout page, the API, or
