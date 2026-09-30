@@ -69,10 +69,6 @@ Vendor groups follow the benchmark spec; on the day, autozone.com (listed under 
 
 User agents seen on the checkers: Fortress `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36`; Camoufox `Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:152.0) Gecko/20100101 Firefox/152.0`. Pixelscan and browserleaks pages were saved but did not yield a comparable summary line.
 
-## Known issues found by this run
-
-**Checker persona incoherence.** Fortress's checker persona paired a macOS user agent with an NVIDIA GTX 1060 WebGL renderer, a combination Macs never shipped with. Tracked as a coherence rule.
-
 ## How it was run
 
 **Machines and egress.** One Fly.io machine (shared-cpu-2x, 4 GB, iad) per tool × target × rep, auto-destroyed on exit. An orchestrator machine kept at most 100 alive and at most 2 on any one site, in a shuffled order so no tool always ran first or last against a site. No proxies: each machine went out on the IP Fly gave it. 1,584 machines drew 213 distinct IPv4 addresses from a handful of blocks; 68 scored runs landed on an IP that had already hit the same site and are marked in the per-run matrix. Excluding them moves no tool by more than a point. The IP check records IPv4 only; sites reached over IPv6 (Lufthansa showed one) saw a different address, so the reuse marker is a lower bound.
