@@ -1,0 +1,55 @@
+Fortress licensing and third-party notices
+=========================================
+
+Fortress-specific work
+---------------------
+Licensor: Tilion Inc.
+Copyright (c) 2026 Tilion Inc.
+New Fortress-specific work distributed with LICENSE is offered under the
+Fortress Source Available License 1.1. Its production-use conditions apply
+from that License's Effective Date, subject to the Grace Periods it sets out,
+and do not expire or convert to another license.
+
+Historical BSD material
+-----------------------
+Material previously released under BSD-3-Clause retains those permissions.
+The original notice is preserved in LICENSE-BSD-LEGACY:
+Copyright (c) 2026, arham766 (Tilion / Fortress engine patches and tooling)
+Retain that notice for the corresponding legacy material. This historical
+attribution does not identify the licensor of new Fortress-specific work.
+LICENSE-BSD-LEGACY does not extend BSD permission to new material released
+only under the Fortress Source Available License.
+
+The licensing change does not change the licenses of Chromium, fonts, the
+separately distributed tilion framework, or other third-party components.
+Their copyright notices and license terms must be retained.
+
+Chromium
+--------
+This project is a patch set applied on top of the Chromium source tree
+(pinned in CHROMIUM_VERSION). Chromium is Copyright The Chromium Authors,
+licensed BSD-3-Clause, with many third-party components under their own
+licenses. See https://source.chromium.org/chromium/chromium/src/+/main:LICENSE
+
+Bundled fonts (fonts/)
+----------------------
+Fortress ships metric-compatible, open-source font faces renamed to the
+Windows family names a real Windows browser would expose, so that font-metric
+fingerprinting sees a coherent Windows machine. The underlying glyph data is
+FOSS:
+
+  * Liberation Sans / Serif / Mono  (-> Arial / Times New Roman / Courier New)
+        Copyright Red Hat, Inc.  — SIL Open Font License 1.1 / GPLv2 + Font Exception
+  * Carlito                          (-> Calibri)
+        Copyright Google / Łukasz Dziedzic — SIL Open Font License 1.1
+  * Caladea                          (-> Cambria)
+        Copyright Google / Carolina Giovagnoli — SIL Open Font License 1.1
+  * Noto Sans / equivalents          (-> Segoe UI, Tahoma, Verdana, Georgia, Consolas)
+        Copyright The Noto Project Authors — SIL Open Font License 1.1
+  * Noto Color Emoji                 (-> Segoe UI Emoji)
+        Copyright The Noto Project Authors — SIL Open Font License 1.1
+
+The fonts have been renamed via their `name` tables. They are NOT the
+proprietary Microsoft fonts; only the family-name strings match, for
+fingerprint coherence. Each face retains its OFL/GPL license terms. If you
+redistribute, retain this NOTICE.

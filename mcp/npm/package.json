@@ -7,7 +7,10 @@
   },
   "files": [
     "cli.js",
-    "README.md"
+    "README.md",
+    "LICENSE",
+    "LICENSE-BSD-LEGACY",
+    "NOTICE"
   ],
   "keywords": [
     "mcp",
@@ -40,7 +43,7 @@
     "url": "https://github.com/tiliondev/fortress/issues"
   },
   "author": "Tilion",
-  "license": "BSD-3-Clause",
+  "license": "SEE LICENSE IN LICENSE",
   "engines": {
     "node": ">=16"
   }
