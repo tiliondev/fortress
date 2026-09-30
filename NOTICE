@@ -1,5 +1,28 @@
-Fortress — third-party notices
-===============================
+Fortress licensing and third-party notices
+=========================================
+
+Fortress-specific work
+---------------------
+Licensor: Tilion Inc.
+Copyright (c) 2026 Tilion Inc.
+New Fortress-specific work distributed with LICENSE is offered under the
+Fortress Source Available License 1.1. Its production-use conditions apply
+from that License's Effective Date, subject to the Grace Periods it sets out,
+and do not expire or convert to another license.
+
+Historical BSD material
+-----------------------
+Material previously released under BSD-3-Clause retains those permissions.
+The original notice is preserved in LICENSE-BSD-LEGACY:
+Copyright (c) 2026, arham766 (Tilion / Fortress engine patches and tooling)
+Retain that notice for the corresponding legacy material. This historical
+attribution does not identify the licensor of new Fortress-specific work.
+LICENSE-BSD-LEGACY does not extend BSD permission to new material released
+only under the Fortress Source Available License.
+
+The licensing change does not change the licenses of Chromium, fonts, the
+separately distributed tilion framework, or other third-party components.
+Their copyright notices and license terms must be retained.
 
 Chromium
 --------
