@@ -179,5 +179,6 @@ Agent skill: [`skill/SKILL.md`](skill/SKILL.md).
 
 ## License
 
-BSD-3-Clause covers the MCP server and the `tilion` framework. The engine binary ships via
+The MCP server is licensed under the Fortress Source Available License 1.1 (see the repository
+[LICENSE](../LICENSE)); earlier BSD releases keep their BSD terms. The engine binary ships via
 `tilion-fortress`. Hosted cloud with residential egress is coming soon.

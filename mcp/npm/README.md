@@ -33,4 +33,4 @@ concurrency-safe, timeout- and SSRF-guarded.
 
 Full docs: **https://github.com/tiliondev/fortress/tree/main/mcp**
 
-BSD-3-Clause · hosted cloud with residential egress coming soon.
+Fortress Source Available License 1.1 · hosted cloud with residential egress coming soon.

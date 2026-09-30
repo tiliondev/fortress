@@ -76,4 +76,4 @@ Linux x64 has a native prebuilt binary. On macOS / Windows the package transpare
 - **Agent guide:** https://github.com/tiliondev/fortress/blob/main/AGENTS.md
 - **Docker image:** https://hub.docker.com/r/tilion/fortress
 
-BSD-3-Clause · reproducible from source · monthly Chromium rebase · **Blink · V8 · BoringSSL** patched in-tree.
+Fortress Source Available License 1.1 · reproducible from source · monthly Chromium rebase · **Blink · V8 · BoringSSL** patched in-tree.
