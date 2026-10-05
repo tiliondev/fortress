@@ -38,13 +38,9 @@ Stealth Chromium engine · **v3 (Chromium 153)**
 
 </div>
 
----
-
 ## Contents
 
 [Quick start](#quick-start) · [Every session a distinct machine](#every-session-a-distinct-machine) · [The Fortress MCP](#the-fortress-mcp) · [Works with your stack](#works-with-your-stack) · [Why patch the engine](#why-patch-the-engine-not-the-page) · [How Fortress compares](#how-fortress-compares) · [Results](#results) · [Configure the persona](#configure-the-persona) · [Build & verify](#build--verify) · [Reference](#reference)
-
----
 
 ## Quick start
 
@@ -119,8 +115,6 @@ The key is checked offline and Fortress never reports usage. Without activation 
 
 [![Ask ChatGPT](https://img.shields.io/badge/Ask-ChatGPT-10A37F?logo=openai&logoColor=white)](https://chatgpt.com/?q=Help%20me%20set%20up%20Fortress%2C%20a%20stealth%20Chromium%20engine%2C%20for%20my%20browser%20automation.%20First%20read%20the%20setup%20guide%20at%20https%3A%2F%2Fgithub.com%2Ftiliondev%2Ffortress%2Fblob%2Fmain%2FAGENTS.md%20then%20walk%20me%20through%3A%201%29%20launching%20Fortress%20%28Docker%3A%20docker%20run%20-d%20--rm%20-p%209222%3A9222%20tilion%2Ffortress%3Alatest%2C%20or%20pip%2Fnpm%20install%20tilion-fortress%29%2C%202%29%20connecting%20my%20Playwright%20or%20Puppeteer%20code%20over%20CDP%20to%20http%3A%2F%2Flocalhost%3A9222%2C%203%29%20keeping%20my%20existing%20automation%20logic.%20Do%20NOT%20add%20puppeteer-stealth%20or%20JS%20fingerprint%20patches%3B%20Fortress%20spoofs%20the%20fingerprint%20in%20the%20engine%27s%20C%2B%2B.) [![Ask Claude](https://img.shields.io/badge/Ask-Claude-D97757?logo=claude&logoColor=white)](https://claude.ai/new?q=Help%20me%20set%20up%20Fortress%2C%20a%20stealth%20Chromium%20engine%2C%20for%20my%20browser%20automation.%20First%20read%20the%20setup%20guide%20at%20https%3A%2F%2Fgithub.com%2Ftiliondev%2Ffortress%2Fblob%2Fmain%2FAGENTS.md%20then%20walk%20me%20through%3A%201%29%20launching%20Fortress%20%28Docker%3A%20docker%20run%20-d%20--rm%20-p%209222%3A9222%20tilion%2Ffortress%3Alatest%2C%20or%20pip%2Fnpm%20install%20tilion-fortress%29%2C%202%29%20connecting%20my%20Playwright%20or%20Puppeteer%20code%20over%20CDP%20to%20http%3A%2F%2Flocalhost%3A9222%2C%203%29%20keeping%20my%20existing%20automation%20logic.%20Do%20NOT%20add%20puppeteer-stealth%20or%20JS%20fingerprint%20patches%3B%20Fortress%20spoofs%20the%20fingerprint%20in%20the%20engine%27s%20C%2B%2B.) [![Ask Gemini](https://img.shields.io/badge/Ask-Gemini-1C69FF?logo=googlegemini&logoColor=white)](https://gemini.google.com/app?q=Help%20me%20set%20up%20Fortress%2C%20a%20stealth%20Chromium%20engine%2C%20for%20my%20browser%20automation.%20First%20read%20the%20setup%20guide%20at%20https%3A%2F%2Fgithub.com%2Ftiliondev%2Ffortress%2Fblob%2Fmain%2FAGENTS.md%20then%20walk%20me%20through%3A%201%29%20launching%20Fortress%20%28Docker%3A%20docker%20run%20-d%20--rm%20-p%209222%3A9222%20tilion%2Ffortress%3Alatest%2C%20or%20pip%2Fnpm%20install%20tilion-fortress%29%2C%202%29%20connecting%20my%20Playwright%20or%20Puppeteer%20code%20over%20CDP%20to%20http%3A%2F%2Flocalhost%3A9222%2C%203%29%20keeping%20my%20existing%20automation%20logic.%20Do%20NOT%20add%20puppeteer-stealth%20or%20JS%20fingerprint%20patches%3B%20Fortress%20spoofs%20the%20fingerprint%20in%20the%20engine%27s%20C%2B%2B.) [![Copy for agent](https://img.shields.io/badge/Copy%20for%20agent-full%20context-24292f?logo=readme&logoColor=white)](https://raw.githubusercontent.com/tiliondev/fortress/main/AGENTS.md)
 
----
-
 ## Every session a distinct machine
 
 <p align="center"><img src="docs/assets/fortress-fleets.gif" width="720" alt="Twelve identical browser windows, tagged same machine times twelve, turn one by one into twelve different machines, each with its own screen and clock."/></p>
@@ -137,8 +131,6 @@ Each launch mints a fresh, internally coherent machine: GPU, screen, cores, time
 | Platform mix | 31 Windows · 9 macOS |
 
 <sub>Reproduce with <code>tools/gauntlet.py --runs 40</code>. A 64-clone fleet resumed from one snapshot comes up 48/48 distinct, because <code>on_restore</code> re-keys the whole persona with no relaunch.</sub>
-
----
 
 ## The Fortress MCP
 
@@ -175,8 +167,6 @@ For Claude Desktop, Cursor (`~/.cursor/mcp.json`), Cline and Windsurf, add the s
 
 The full tool reference, benchmarks and agent skill are in [`mcp/`](mcp/README.md).
 
----
-
 ## Works with your stack
 
 <p align="center"><img src="docs/assets/fortress-integration.gif" width="720" alt="A Playwright script where one line changes from p.chromium.launch() to p.chromium.connect_over_cdp on localhost:9222. The rest of the script stays the same."/></p>
@@ -191,8 +181,6 @@ With Fortress running (Docker or the `tilion` command), one line changes: `launc
 | [**LangChain**](https://github.com/langchain-ai/langchain) Playwright toolkit | Playwright CDP |
 | **Playwright / Puppeteer** (Python & JS) | `connect_over_cdp` / `connect` |
 | **Fortress MCP** + `pip install tilion` facade | tools for agents, raw CDP underneath |
-
----
 
 ## Why patch the engine, not the page
 
@@ -224,8 +212,6 @@ In Fortress the getter for `navigator.vendor` **is** the C++ getter. It reports 
 | **D: network / IP egress** | datacenter ASN, IP reputation, geo-vs-persona mismatch | Your proxies (residential / mobile), or the Tilion hosted version | <img src="docs/assets/icons/warn.svg" width="15" alt="partial"> bring your own with the self-hosted engine; available on the Tilion hosted version, waitlist at [tilion.com](https://tilion.com) |
 
 Fortress is the Layer C engine, built to be driven so A and B hold too, and to stay geo-coherent (timezone, locale, WebRTC) once you bring a Layer D IP.
-
----
 
 ## How Fortress compares
 
@@ -272,8 +258,6 @@ Fortress builds on prior art: [`fingerprint-chromium`](https://github.com/adryfi
 
 </details>
 
----
-
 ## Results
 
 ### Benchmark: 92 protected sites, eight stacks
@@ -317,8 +301,6 @@ Headless, from a datacenter IP, on the v3 binary. Reproduce with `tools/gauntlet
 
 <sub>Unedited capture in a real window: Fortress clears a live <b>Cloudflare</b> challenge, turns <b>bot.sannysoft.com</b> all green and reads <b>BrowserScan</b> "Normal".</sub>
 
----
-
 ## Configure the persona
 
 The default is a fresh coherent persona per launch, delivered over IPC. Pin or override any surface with `--uxr-*` switches:
@@ -337,8 +319,6 @@ The default is a fresh coherent persona per launch, delivered over IPC. Pin or o
 | `TILION_TZ` / `TILION_LANG` | Quick timezone / language override |
 
 Every flag, env var and coherence rule: [docs/UXR_CONFIG.md](docs/UXR_CONFIG.md).
-
----
 
 ## Build & verify
 
@@ -367,8 +347,6 @@ curl -LO $BASE/fortress-v153-linux-x64.tar.gz
 curl -Ls $BASE/SHA256SUMS | sha256sum -c --ignore-missing     # -> OK
 docker inspect --format '{{index .RepoDigests 0}}' tilion/fortress:153.0.8010.36
 ```
-
----
 
 ## Reference
 
