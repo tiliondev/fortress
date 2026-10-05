@@ -9,13 +9,29 @@ set -e
 INTERNAL=9223
 EXTERNAL=9222
 
+# The CDP port is fixed by this bridge. A --remote-debugging-port passed to
+# `docker run` would override ours (Chrome keeps the last copy of a switch), so
+# Chrome would take $EXTERNAL itself, the wait below would time out, and socat
+# would then fail to bind $EXTERNAL and take the container down. Drop it.
+args=()
+for arg in "$@"; do
+  case "$arg" in
+    --remote-debugging-port|--remote-debugging-port=*)
+      echo "docker-entrypoint: ignoring $arg, CDP is always served on port $EXTERNAL" >&2
+      ;;
+    *)
+      args+=("$arg")
+      ;;
+  esac
+done
+
 /opt/tilion/tilion \
   --headless=new \
   --no-sandbox \
   --enable-unsafe-swiftshader \
   --remote-debugging-port="$INTERNAL" \
   --user-data-dir=/tmp/tilion-profile \
-  "$@" &
+  "${args[@]}" &
 CHROME_PID=$!
 trap 'kill "$CHROME_PID" 2>/dev/null || true' TERM INT
 
