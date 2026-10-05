@@ -179,6 +179,10 @@ await f.close();
 
 ## Every session a distinct machine
 
+<p align="center"><img src="docs/assets/fortress-fleets.gif" width="720" alt="Twelve identical browser windows, tagged same machine times twelve, turn one by one into twelve different machines, each with its own screen and clock."/></p>
+
+<sub>A fleet of copies reads as one bot. With Fortress every launch is a different, consistent machine.</sub>
+
 40 back-to-back launches of the **same v3 binary**, headless. Each one is a *different*, internally coherent machine, and **no two sessions shared a canvas or audio fingerprint**:
 
 | Across 40 launches | Distinct |
@@ -332,6 +336,10 @@ Raw CDP is for code you write. The **Fortress MCP** is for agents that call **to
 
 <sub><i>Real, dated run against <b>stockx.com</b> (PerimeterX). A stock browser gets <b>HTTP 403, “Access denied”</b>; an agent with the Fortress MCP returns clean JSON from the same site and the same prompt. Reproduce it from the framework repo.</i></sub>
 
+<p align="center"><img src="docs/assets/fortress-mcp.gif" width="720" alt="Requests from coding agents hit a verify-you-are-human check and are blocked, then route through Fortress, pass the check and reach the website."/></p>
+
+<sub>When a plain fetch is blocked, the agent routes the request through Fortress, which gets past the check and returns the page.</sub>
+
 ### Set it up in 30 seconds
 
 Two runners; pick one. `npx` needs Python on PATH; `pip` installs it directly:
@@ -382,6 +390,10 @@ Full 29-tool table, benchmarks, and the agent skill: **[`mcp/`](https://github.c
 ---
 
 ## Why patch the engine, not the page
+
+<p align="center"><img src="docs/assets/fortress-fingerprint.gif" width="720" alt="A site scans the browser fingerprint. Stock Chrome fails CreepJS, BrowserScan, rebrowser and WebGL checks and is blocked. Fortress passes all four and the page loads."/></p>
+
+<sub>A site reads the fingerprint. Stock Chrome, driven by a script, fails CreepJS, BrowserScan, rebrowser and the WebGL check and is blocked; Fortress passes all four and the page loads.</sub>
 
 The usual approach patches `navigator.webdriver`, spoofs the WebGL vendor, and overrides `navigator.plugins` from script. CreepJS and similar detectors still flag it, and the reason is **structural**: a JavaScript spoof is a function standing where a native one belongs. Detectors set the returned value aside and interrogate whether the thing returning it is native:
 
@@ -561,6 +573,10 @@ The binary carries **zero brand strings**. The launcher mints a coherent persona
 ## Works with your stack
 
 Fortress exposes raw CDP on `:9222`, so it drops in under anything that speaks Playwright, Puppeteer, or CDP. Keep your framework, swap the browser.
+
+<p align="center"><img src="docs/assets/fortress-integration.gif" width="720" alt="A Playwright script where one line changes from p.chromium.launch() to p.chromium.connect_over_cdp on localhost:9222. The rest of the script stays the same."/></p>
+
+<sub>With Fortress running (Docker or the <code>tilion</code> command), one line changes: <code>launch()</code> becomes <code>connect_over_cdp("http://localhost:9222")</code>.</sub>
 
 | Framework | Connect via |
 |---|---|
