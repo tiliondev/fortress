@@ -140,10 +140,6 @@ A [Model Context Protocol](https://modelcontextprotocol.io) server that gives Cl
 
 <p align="center"><img src="docs/assets/fortress-mcp.gif" width="720" alt="Requests from coding agents hit a verify-you-are-human check and are blocked, then route through Fortress, pass the check and reach the website."/></p>
 
-<p align="center"><img src="https://raw.githubusercontent.com/tiliondev/fortress/main/mcp/demo.gif" alt="Same site, same prompt: a vanilla browser is blocked by PerimeterX while an agent with the Fortress MCP returns clean JSON" width="760"/></p>
-
-<sub>Dated run against <b>stockx.com</b> (PerimeterX): a stock browser gets <b>HTTP 403</b>; an agent with the Fortress MCP returns clean JSON from the same prompt.</sub>
-
 ```bash
 pip install "tilion[mcp]"                  # or zero-install: npx -y tilion-mcp
 claude mcp add fortress -- tilion-mcp      # Claude Code
