@@ -9,7 +9,11 @@ ships the wrong binary or skips checksum verification, so it is worth gating in 
 Run:  pytest sdk/python/tests -q
 """
 from __future__ import annotations
+import hashlib
+import io
 import sys
+import tarfile
+import zipfile
 from pathlib import Path
 
 import pytest
@@ -148,3 +152,83 @@ def test_channel_resolution():
         tf.Fortress(channel="nope"); assert False
     except ValueError:
         pass
+
+
+# --------------------------------------------------------------------------- launcher lookup
+def _craft_tarball(files: dict[str, bytes]) -> bytes:
+    buf = io.BytesIO()
+    with tarfile.open(fileobj=buf, mode="w:gz") as t:
+        for name, data in files.items():
+            info = tarfile.TarInfo(name)
+            info.size = len(data)
+            info.mode = 0o755 if name.endswith(("tilion", "tilion.cmd")) else 0o644
+            t.addfile(info, io.BytesIO(data))
+    return buf.getvalue()
+
+
+def _craft_zip(files: dict[str, bytes]) -> bytes:
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, mode="w") as z:
+        for name, data in files.items():
+            z.writestr(name, data)
+    return buf.getvalue()
+
+
+def _serve_bundle(monkeypatch, payload: bytes):
+    """Point _download at a fake release serving `payload`; verify its real hash."""
+    monkeypatch.setattr(tf, "_CACHE", Path("CACHE-NOT-USED"))
+    digest = hashlib.sha256(payload).hexdigest()
+
+    def fake_urlretrieve(url, filename):
+        Path(filename).write_bytes(payload)
+
+    monkeypatch.setattr(tf.urllib.request, "urlretrieve", fake_urlretrieve)
+    monkeypatch.setattr(tf, "_expected_sha", lambda asset, host: digest)
+
+
+def test_download_finds_expected_launcher(tmp_path, monkeypatch, capsys):
+    _serve_bundle(monkeypatch, _craft_tarball({"tilion-fortress/tilion": b"#!/bin/sh\n"}))
+    monkeypatch.setattr(tf, "_CACHE", tmp_path)
+    launcher = tf._download("linux-x64", "https://h", "vX")
+    assert launcher == tmp_path / "vX" / "linux-x64" / "tilion-fortress" / "tilion"
+    assert "SHA256 verified" in capsys.readouterr().err
+    # The archive is removed only after the launcher resolved.
+    assert list((tmp_path / "vX" / "linux-x64").glob("*.tar.gz")) == []
+
+
+def test_download_recovers_from_renamed_top_dir(tmp_path, monkeypatch):
+    # Issue #34: a SHA-verified bundle whose top directory is not
+    # `tilion-fortress/` must still resolve instead of raising.
+    _serve_bundle(monkeypatch, _craft_tarball({"renamed-dir/tilion": b"#!/bin/sh\n"}))
+    monkeypatch.setattr(tf, "_CACHE", tmp_path)
+    launcher = tf._download("linux-x64", "https://h", "vX")
+    assert launcher == tmp_path / "vX" / "linux-x64" / "renamed-dir" / "tilion"
+
+
+def test_download_without_launcher_reports_contents(tmp_path, monkeypatch):
+    _serve_bundle(monkeypatch, _craft_tarball({"something-else/chrome": b"ELF"}))
+    monkeypatch.setattr(tf, "_CACHE", tmp_path)
+    with pytest.raises(RuntimeError, match=r"launcher missing.*top level holds: \['something-else'\]"):
+        tf._download("linux-x64", "https://h", "vX")
+    # Keep the archive so the layout can be inspected instead of re-downloaded.
+    assert list((tmp_path / "vX" / "linux-x64").glob("*.tar.gz")) != []
+
+
+def test_download_zip_launcher(tmp_path, monkeypatch):
+    _serve_bundle(monkeypatch, _craft_zip({"tilion-fortress/tilion.cmd": b"@echo off\n"}))
+    monkeypatch.setattr(tf, "_CACHE", tmp_path)
+    launcher = tf._download("win-x64", "https://h", "vX")
+    assert launcher == tmp_path / "vX" / "win-x64" / "tilion-fortress" / "tilion.cmd"
+
+
+def test_download_uses_cached_launcher_without_network(tmp_path, monkeypatch):
+    monkeypatch.setattr(tf, "_CACHE", tmp_path)
+    cached = tmp_path / "vX" / "linux-x64" / "tilion-fortress" / "tilion"
+    cached.parent.mkdir(parents=True)
+    cached.write_bytes(b"#!/bin/sh\n")
+
+    def no_network(*a, **k):
+        raise AssertionError("must not download when the launcher is cached")
+
+    monkeypatch.setattr(tf.urllib.request, "urlretrieve", no_network)
+    assert tf._download("linux-x64", "https://h", "vX") == cached

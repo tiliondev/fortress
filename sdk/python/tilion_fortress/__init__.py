@@ -76,6 +76,40 @@ def _expected_sha(asset: str, host: str) -> str | None:
     return None
 
 
+def _resolve_launcher(root: Path, plat: str) -> Path:
+    """Return the launcher path for `plat` inside the extracted `root`.
+
+    The expected relative path comes from _ASSETS. Release bundles have
+    arrived with a different top directory before (issue #34: a SHA-verified
+    download extracts fine but the launcher is not where the SDK looks), so
+    fall back to searching the extracted tree for the launcher filename
+    before giving up. When nothing is found the error lists what extraction
+    actually produced, which is what such a report needs to be actionable.
+    """
+    _, _, launcher_rel = _ASSETS[plat]
+    expected = root / launcher_rel
+    if expected.is_file():
+        if not expected.name.endswith(".cmd"):
+            expected.chmod(0o755)
+        return expected
+    name = Path(launcher_rel).name
+    found = sorted(p for p in root.rglob(name) if p.is_file())
+    if len(found) == 1:
+        if not found[0].name.endswith(".cmd"):
+            found[0].chmod(0o755)
+        return found[0]
+    asset = _ASSETS[plat][0]
+    if root.is_dir():
+        top = sorted(p.name for p in root.iterdir() if p.name != asset)
+    else:
+        top = []
+    raise RuntimeError(
+        f"bundle extracted but launcher missing: expected {expected} "
+        f"(and no unambiguous {name!r} elsewhere in the bundle); "
+        f"top level holds: {top or 'nothing'}"
+    )
+
+
 def _download(plat: str, host: str, tag: str) -> Path:
     """Ensure the bundle for `plat` is present + verified; return the launcher path."""
     asset, kind, launcher_rel = _ASSETS[plat]
@@ -105,11 +139,8 @@ def _download(plat: str, host: str, tag: str) -> Path:
     else:
         with zipfile.ZipFile(archive) as z:
             z.extractall(root)
+    launcher = _resolve_launcher(root, plat)
     archive.unlink(missing_ok=True)
-    if launcher.exists() and not launcher.name.endswith(".cmd"):
-        launcher.chmod(0o755)
-    if not launcher.exists():
-        raise RuntimeError(f"bundle extracted but launcher missing: {launcher}")
     return launcher
 
 
