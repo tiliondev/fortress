@@ -9,7 +9,7 @@ Stealth Chromium engine · **v3 (Chromium 153)**
 [![Chromium](https://img.shields.io/badge/chromium-153.0.8010.36-4285F4?logo=googlechrome&logoColor=white)](CHROMIUM_VERSION) [![Docker pulls](https://img.shields.io/docker/pulls/tilion/fortress?logo=docker&logoColor=white&label=pulls)](https://hub.docker.com/r/tilion/fortress) [![Discord](https://img.shields.io/badge/Discord-join%20the%20community-5865F2?logo=discord&logoColor=white)](https://discord.gg/bfy3fv6QT)<br/>
 [![Copy for agent](https://img.shields.io/badge/Copy%20for%20agent-24292f?logo=readme&logoColor=white)](https://raw.githubusercontent.com/tiliondev/fortress/main/AGENTS.md) [![llms.txt](https://img.shields.io/badge/llms.txt-24292f?logo=readme&logoColor=white)](https://raw.githubusercontent.com/tiliondev/fortress/main/llms.txt) [![MCP server](https://img.shields.io/badge/MCP-fortress%20·%2029%20tools-6E56CF?logo=modelcontextprotocol&logoColor=white)](https://github.com/tiliondev/fortress/tree/main/mcp) [![npm tilion-mcp](https://img.shields.io/npm/v/tilion-mcp?logo=npm&logoColor=white&label=npx%20tilion-mcp&color=CB3837)](https://www.npmjs.com/package/tilion-mcp)
 
-**Fortress is a Chromium fork that stops scrapers and browser agents from getting blocked.** Bot detectors flag automation by reading the browser fingerprint. Fortress corrects that fingerprint inside Chromium's C++, so the browser reads as an ordinary Chrome install. Point your existing Playwright or Puppeteer at it over CDP; nothing else in your code changes.
+**Fortress is a Chromium fork that helps scrapers and browser agents avoid fingerprint-based blocks.** Bot detectors flag automation by reading the browser fingerprint. Fortress corrects that fingerprint inside Chromium's C++, so the browser reads as an ordinary Chrome install. Point your existing Playwright or Puppeteer at it over CDP; nothing else in your code changes.
 
 **Headless, on datacenter IPs, with no proxies, Fortress loaded 86.4% of 92 protected sites. The next best stack (Camoufox) loaded 74.5%.**
 
@@ -40,7 +40,7 @@ Stealth Chromium engine · **v3 (Chromium 153)**
 
 ## Contents
 
-[Quick start](#quick-start) · [Every session a distinct machine](#every-session-a-distinct-machine) · [The Fortress MCP](#the-fortress-mcp) · [Works with your stack](#works-with-your-stack) · [Why patch the engine](#why-patch-the-engine-not-the-page) · [How Fortress compares](#how-fortress-compares) · [Results](#results) · [Configure the persona](#configure-the-persona) · [Build & verify](#build--verify) · [Reference](#reference)
+[Quick start](#quick-start) · [Scope and limits](#scope-and-limits) · [Every session a distinct machine](#every-session-a-distinct-machine) · [The Fortress MCP](#the-fortress-mcp) · [Works with your stack](#works-with-your-stack) · [Why patch the engine](#why-patch-the-engine-not-the-page) · [How Fortress compares](#how-fortress-compares) · [Results](#results) · [Configure the persona](#configure-the-persona) · [Proxy configuration](#proxy-configuration) · [Build & verify](#build--verify) · [Reference](#reference)
 
 ## Quick start
 
@@ -114,6 +114,14 @@ The key is checked offline and Fortress never reports usage. Without activation 
 ### Set it up with an AI assistant
 
 [![Ask ChatGPT](https://img.shields.io/badge/Ask-ChatGPT-10A37F?logo=openai&logoColor=white)](https://chatgpt.com/?q=Help%20me%20set%20up%20Fortress%2C%20a%20stealth%20Chromium%20engine%2C%20for%20my%20browser%20automation.%20First%20read%20the%20setup%20guide%20at%20https%3A%2F%2Fgithub.com%2Ftiliondev%2Ffortress%2Fblob%2Fmain%2FAGENTS.md%20then%20walk%20me%20through%3A%201%29%20launching%20Fortress%20%28Docker%3A%20docker%20run%20-d%20--rm%20-p%209222%3A9222%20tilion%2Ffortress%3Alatest%2C%20or%20pip%2Fnpm%20install%20tilion-fortress%29%2C%202%29%20connecting%20my%20Playwright%20or%20Puppeteer%20code%20over%20CDP%20to%20http%3A%2F%2Flocalhost%3A9222%2C%203%29%20keeping%20my%20existing%20automation%20logic.%20Do%20NOT%20add%20puppeteer-stealth%20or%20JS%20fingerprint%20patches%3B%20Fortress%20spoofs%20the%20fingerprint%20in%20the%20engine%27s%20C%2B%2B.) [![Ask Claude](https://img.shields.io/badge/Ask-Claude-D97757?logo=claude&logoColor=white)](https://claude.ai/new?q=Help%20me%20set%20up%20Fortress%2C%20a%20stealth%20Chromium%20engine%2C%20for%20my%20browser%20automation.%20First%20read%20the%20setup%20guide%20at%20https%3A%2F%2Fgithub.com%2Ftiliondev%2Ffortress%2Fblob%2Fmain%2FAGENTS.md%20then%20walk%20me%20through%3A%201%29%20launching%20Fortress%20%28Docker%3A%20docker%20run%20-d%20--rm%20-p%209222%3A9222%20tilion%2Ffortress%3Alatest%2C%20or%20pip%2Fnpm%20install%20tilion-fortress%29%2C%202%29%20connecting%20my%20Playwright%20or%20Puppeteer%20code%20over%20CDP%20to%20http%3A%2F%2Flocalhost%3A9222%2C%203%29%20keeping%20my%20existing%20automation%20logic.%20Do%20NOT%20add%20puppeteer-stealth%20or%20JS%20fingerprint%20patches%3B%20Fortress%20spoofs%20the%20fingerprint%20in%20the%20engine%27s%20C%2B%2B.) [![Ask Gemini](https://img.shields.io/badge/Ask-Gemini-1C69FF?logo=googlegemini&logoColor=white)](https://gemini.google.com/app?q=Help%20me%20set%20up%20Fortress%2C%20a%20stealth%20Chromium%20engine%2C%20for%20my%20browser%20automation.%20First%20read%20the%20setup%20guide%20at%20https%3A%2F%2Fgithub.com%2Ftiliondev%2Ffortress%2Fblob%2Fmain%2FAGENTS.md%20then%20walk%20me%20through%3A%201%29%20launching%20Fortress%20%28Docker%3A%20docker%20run%20-d%20--rm%20-p%209222%3A9222%20tilion%2Ffortress%3Alatest%2C%20or%20pip%2Fnpm%20install%20tilion-fortress%29%2C%202%29%20connecting%20my%20Playwright%20or%20Puppeteer%20code%20over%20CDP%20to%20http%3A%2F%2Flocalhost%3A9222%2C%203%29%20keeping%20my%20existing%20automation%20logic.%20Do%20NOT%20add%20puppeteer-stealth%20or%20JS%20fingerprint%20patches%3B%20Fortress%20spoofs%20the%20fingerprint%20in%20the%20engine%27s%20C%2B%2B.) [![Copy for agent](https://img.shields.io/badge/Copy%20for%20agent-full%20context-24292f?logo=readme&logoColor=white)](https://raw.githubusercontent.com/tiliondev/fortress/main/AGENTS.md)
+
+## Scope and limits
+
+Fortress corrects browser fingerprint surfaces inside Chromium. The self-hosted engine does **not** supply or rotate exit IPs, reset IP reputation, or bypass request-rate (velocity) limits. Sites can also consider account history, cookies and behavior, so a clean fingerprint does not guarantee access or sustained scraping.
+
+Restarting the browser, changing its persona or starting a fresh container does not by itself change the public egress IP or clear a site's server-side limits. A first successful page load followed by repeated `403` responses on the same IP is consistent with an IP-reputation or velocity gate, but is not proof of the cause; a `403` alone does not diagnose fingerprint detection either.
+
+Manage request pacing, concurrency and backoff in your automation. If your deployment needs different egress, bring your own proxy or proxy pool using the [configuration below](#proxy-configuration). Proxy selection and rotation belong to your infrastructure or provider, and do not guarantee access.
 
 ## Every session a distinct machine
 
@@ -205,7 +213,7 @@ In Fortress the getter for `navigator.vendor` **is** the C++ getter. It reports 
 | **A: driver / binary artifacts** | `cdc_` ChromeDriver vars, WebDriver protocol surface | Drive raw CDP, skip chromedriver | <img src="docs/assets/icons/check.svg" width="15" alt="yes"> built to be driven this way |
 | **B: CDP side-effects** | `Runtime.enable` leaks via sourceURL + init-script footprints, however clean the binary is | The control / CDP-client layer: hold back `Runtime.enable`, use `Runtime.addBinding` + isolated worlds | <img src="docs/assets/icons/check.svg" width="15" alt="yes"> no leak (verified on rebrowser) |
 | **C: fingerprint surface** | canvas, WebGL, WebGPU, audio, fonts, navigator, across main frame, iframes, workers | The engine (C++), because JS overrides self-reveal | <img src="docs/assets/icons/check.svg" width="15" alt="yes"> **this is Fortress** |
-| **D: network / IP egress** | datacenter ASN, IP reputation, geo-vs-persona mismatch | Your proxies (residential / mobile), or the Tilion hosted version | <img src="docs/assets/icons/warn.svg" width="15" alt="partial"> bring your own with the self-hosted engine; available on the Tilion hosted version, waitlist at [tilion.com](https://tilion.com) |
+| **D: network / IP egress** | datacenter ASN, IP reputation, request velocity, geo-vs-persona mismatch | Your egress infrastructure and request pacing | <img src="docs/assets/icons/warn.svg" width="15" alt="partial"> [bring your own proxy](#proxy-configuration); the self-hosted engine does not rotate IPs or bypass throttling |
 
 Fortress is the Layer C engine, built to be driven so A and B hold too, and to stay geo-coherent (timezone, locale, WebRTC) once you bring a Layer D IP.
 
@@ -316,6 +324,46 @@ The default is a fresh coherent persona per launch, delivered over IPC. Pin or o
 
 Every flag, env var and coherence rule: [docs/UXR_CONFIG.md](docs/UXR_CONFIG.md).
 
+## Proxy configuration
+
+The native launcher forwards Chromium's `--proxy-server` flag. With the extracted Linux bundle, for example:
+
+```bash
+./tilion --headless=new --remote-debugging-port=9222 \
+  --user-data-dir=./fortress-proxy-profile \
+  --proxy-server=http://proxy.example.com:8080
+```
+
+Replace the example address with a proxy reachable from the engine's host or container. This example assumes a proxy that does not require browser-supplied credentials, such as one authorized by source IP. For Docker, pass the same flag after the image name. The repository's SDKs forward it through `extra_args` (Python) or `extraArgs` (Node):
+
+```python
+from tilion_fortress import Fortress
+
+with Fortress(extra_args=["--proxy-server=http://proxy.example.com:8080"]) as f:
+    print(f.cdp_url)  # Connect your existing CDP client here.
+```
+
+```js
+import { Fortress } from "tilion-fortress";
+
+const f = await Fortress.launch({
+  extraArgs: ["--proxy-server=http://proxy.example.com:8080"],
+});
+try {
+  console.log(f.cdpUrl); // Connect and run your existing CDP client here.
+} finally {
+  await f.close();
+}
+```
+
+Configure the proxy when launching the engine; connecting a client over CDP does not change the running engine's egress. Chromium also supports `--proxy-server=socks5://host:port`, but does not support SOCKS5 authentication or credentials embedded in `--proxy-server` URLs. For an authenticated HTTP proxy, use a client that handles proxy-authentication challenges or a local forwarding proxy that authenticates upstream. See [Chromium's proxy documentation](https://chromium.googlesource.com/chromium/src/+/HEAD/net/docs/proxy.md).
+
+The separate MCP integration exposes `TILION_PROXY`; see [MCP egress configuration and verification](mcp/USAGE.md#6-configuration-env). This is not an environment variable consumed by the native launcher or these SDKs. Confirm support in your installed MCP/engine combination.
+
+**Verify egress from a page in the connected browser** using an IP-check endpoint you trust, and compare the reported public IP with the expected proxy exit. A host-side `curl` request or a configured flag alone does not verify browser routing. For MCP, use `get_egress_info` and check the returned `public_ip`. Align the persona's timezone and language with the intended exit using the [persona configuration](#configure-the-persona).
+
+For a proxy pool, use its gateway endpoint or select an endpoint before launching each engine; Fortress does not schedule rotation. Keep the exit stable where a session requires it, and control request rate and backoff independently. A proxy can itself have poor reputation or hit velocity limits.
+
 ## Build & verify
 
 ```bash
@@ -350,7 +398,7 @@ docker inspect --format '{{index .RepoDigests 0}}' tilion/fortress:153.0.8010.36
 
 <br/>
 
-**Still blocked on Cloudflare, DataDome or Kasada.** Usually the IP: datacenter ranges are flagged before any page script runs. Retry through a residential or mobile proxy; if it clears, the fingerprint was fine. Tilion Cloud runs Fortress on residential egress (waitlist at [tilion.com](https://tilion.com)).
+**Still blocked on Cloudflare, DataDome, Kasada or eBay.** Check the response body, status and request rate, then verify the browser's public egress IP. IP reputation and velocity limits can block a clean fingerprint, and restarting on the same IP does not reset them. Success through a different exit suggests an egress-related factor; it does not prove the fingerprint is undetectable. See [scope and limits](#scope-and-limits) and [proxy configuration](#proxy-configuration).
 
 **The fingerprint looks off on a Linux host.** The default persona is Windows, but TLS and some OS signals follow the host. Match the persona to your egress OS with `--uxr-*`, or run the native Windows build.
 
@@ -374,7 +422,7 @@ docker inspect --format '{{index .RepoDigests 0}}' tilion/fortress:153.0.8010.36
 
 **Does it run headless?** Yes. The benchmark is headless, and headless and headed launches present the same fingerprint.
 
-**Do I still need proxies?** For sites that block datacenter ranges, yes. Fortress keeps timezone, locale and WebRTC coherent with whatever exit you use.
+**Do I still need proxies?** It depends on the site's network policy and your egress IP. Fortress does not supply proxies, rotate IPs or remove rate limits. You can [configure your own proxy](#proxy-configuration), verify the browser's exit IP and align the persona with that exit; access is still not guaranteed.
 
 **Is it open source? What does it cost?** Source-available under the [Fortress Source Available License 1.1](LICENSE); see [License](#license).
 
