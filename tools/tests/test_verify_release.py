@@ -8,7 +8,11 @@ SDK tables) can be driven offline without touching the GitHub API.
 Run:  pytest tools/tests -q
 """
 from __future__ import annotations
+import copy
+import hashlib
+import json
 import sys
+import zipfile
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -135,3 +139,87 @@ def test_mismatched_sdk_tables_fails():
 def test_parse_sha256sums_handles_binary_marker_and_case():
     parsed = vr.parse_sha256sums(f"AA11BB22  {LINUX}\ncafef00d *{WIN}\n")
     assert parsed == {LINUX: "aa11bb22", WIN: "cafef00d"}
+
+
+def test_release_names_keep_legacy_channels_compatible():
+    assert vr.release_asset_names("v151.0.7908.0", SDK_ASSETS) == SDK_ASSETS
+
+
+def test_release_names_support_current_versioned_bundles():
+    names = vr.release_asset_names("v153.0.8010.68", SDK_ASSETS)
+    assert names["linux-x64"] == "fortress-v153-linux-x64.tar.gz"
+    assert names["win-x64"] == "fortress-v153-win-x64.zip"
+    assert names["mac-arm64"] == "fortress-v153-mac-arm64.tar.gz"
+    assert vr.release_asset_names("v156.0.8078.47", SDK_ASSETS)["linux-arm64"] == "fortress-v156-linux-arm64.tar.gz"
+
+
+def test_versioned_release_verifies_without_legacy_filenames():
+    names = vr.release_asset_names("v153.0.8010.68", SDK_ASSETS)
+    rel = release(asset("SHA256SUMS"), asset(names["linux-x64"], digest=H_LINUX),
+                  asset(names["win-x64"], digest=H_WIN))
+    rep = vr.evaluate(rel, sums((H_LINUX, names["linux-x64"]), (H_WIN, names["win-x64"])),
+                      names, required={"linux-x64", "win-x64"})
+    assert rep.failures == []
+
+
+def candidate_record():
+    folder = Path(__file__).resolve().parents[2] / "releases/v153.0.8010.68"
+    return json.loads((folder / "manifest.json").read_text()), (folder / "SHA256SUMS").read_text()
+
+
+def test_checked_in_candidate_is_internally_consistent():
+    manifest, text = candidate_record()
+    assert vr.evaluate_manifest(manifest, text).failures == []
+
+
+def test_candidate_rejects_missing_required_windows_build():
+    manifest, text = candidate_record()
+    manifest["assets"] = manifest["assets"][:1]
+    assert "required platforms present" in vr.evaluate_manifest(manifest, text).failures
+
+
+def test_candidate_rejects_license_bypass():
+    manifest, text = candidate_record()
+    manifest["license"]["bypass_enabled"] = True
+    assert "native license bypass disabled" in vr.evaluate_manifest(manifest, text).failures
+
+
+def test_candidate_rejects_duplicate_checksum_entries():
+    manifest, text = candidate_record()
+    assert "unique checksum entries" in vr.evaluate_manifest(manifest, text + text).failures
+
+
+def test_candidate_rejects_unsafe_asset_paths():
+    manifest, text = candidate_record()
+    manifest["assets"][0]["name"] = "../fortress-v153-linux-x64.tar.gz"
+    assert "manifest asset name: linux-x64" in vr.evaluate_manifest(manifest, text).failures
+
+
+def test_candidate_checks_native_payload_and_excludes_personal_keys(tmp_path):
+    name = "fortress-v153-win-x64.zip"
+    engine = b"native engine fixture"
+    client = b"activation client fixture"
+    archive_path = tmp_path / name
+    with zipfile.ZipFile(archive_path, "w") as archive:
+        archive.writestr("fortress-v153-win-x64\\chrome.dll", engine)
+        archive.writestr("fortress-v153-win-x64\\tilion_activate.py", client)
+    manifest = {
+        "tag": "v153.0.8010.68", "chromium_version": "153.0.8010.68", "required_platforms": ["win-x64"],
+        "license": {"bypass_enabled": False, "personal_keys_bundled": False,
+                    "activation_client_sha256": hashlib.sha256(client).hexdigest()},
+        "assets": [{"platform": "win-x64", "name": name, "bytes": archive_path.stat().st_size,
+                    "sha256": hashlib.sha256(archive_path.read_bytes()).hexdigest(),
+                    "engine_file": "fortress-v153-win-x64/chrome.dll",
+                    "engine_sha256": hashlib.sha256(engine).hexdigest()}],
+    }
+    text = sums((manifest["assets"][0]["sha256"], name))
+    assert vr.evaluate_manifest(manifest, text, tmp_path).failures == []
+    wrong_engine = copy.deepcopy(manifest)
+    wrong_engine["assets"][0]["engine_sha256"] = "0" * 64
+    assert f"native engine sha256: {name}" in vr.evaluate_manifest(wrong_engine, text, tmp_path).failures
+    with zipfile.ZipFile(archive_path, "a") as archive:
+        archive.writestr("fortress-v153-win-x64/license.jwt", b"must not ship")
+    manifest["assets"][0].update(bytes=archive_path.stat().st_size,
+                                  sha256=hashlib.sha256(archive_path.read_bytes()).hexdigest())
+    text = sums((manifest["assets"][0]["sha256"], name))
+    assert f"archive paths and credential exclusion: {name}" in vr.evaluate_manifest(manifest, text, tmp_path).failures

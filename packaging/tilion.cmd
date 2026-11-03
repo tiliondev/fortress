@@ -4,6 +4,8 @@ REM --uxr-* switches + enables WebGPU presence, then runs chrome.exe with all pa
 REM Windows uses system fonts (which already match the spoofed OS), so no fontconfig bundle.
 REM Override: pass your own --uxr-* flags, or set TILION_NO_DEFAULTS=1 for a bare launch.
 setlocal
+if /I "%~1"=="activate" goto activate
+if /I "%~1"=="license" goto activate
 set HERE=%~dp0
 set VK_ICD_FILENAMES=%HERE%vk_swiftshader_icd.json
 set DEF=
@@ -21,3 +23,7 @@ if not defined TILION_NO_DEFAULTS set DEF=^
  --enable-dawn-features=use_vulkan --uxr-webgpu-vendor=nvidia --uxr-webgpu-architecture=ampere "--uxr-webgpu-description=NVIDIA GeForce RTX 3060"
 "%HERE%chrome.exe" --use-angle=swiftshader %DEF% %*
 endlocal
+exit /b %ERRORLEVEL%
+:activate
+call "%~dp0tilion-activate.cmd" %*
+exit /b %ERRORLEVEL%

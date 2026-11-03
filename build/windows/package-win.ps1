@@ -30,6 +30,12 @@ Get-ChildItem $Out -Directory | Where-Object { $_.Name -match '^\d+\.\d+\.\d+\.\
 Copy-Item (Join-Path $Out "locales") (Join-Path $B "locales") -Recurse
 
 Copy-Item (Join-Path $Repo "packaging\tilion.cmd") (Join-Path $B "tilion.cmd")
+foreach ($name in @("tilion-activate.cmd", "tilion_activate.py")) {
+  Copy-Item (Join-Path "$Repo\packaging" $name) (Join-Path $B $name)
+}
+foreach ($name in @("LICENSE", "NOTICE")) {
+  Copy-Item (Join-Path $Repo $name) (Join-Path $B $name)
+}
 
 $asset = Join-Path $Dest "tilion-fortress-win-x64.zip"
 Remove-Item $asset -ErrorAction SilentlyContinue
