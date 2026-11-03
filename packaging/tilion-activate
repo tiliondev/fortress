@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# Fortress license activation, bundled in the tarball so a dev never installs anything.
+# Runs the bundled stdlib Python client. `tilion-activate [flags]` == `tilion activate [flags]`.
+#   tilion-activate                one-click device flow (unlock v3)
+#   tilion-activate --token <jwt>  save a key non-interactively (CI / agents)
+#   tilion-activate --if-needed    activate only if no live key (the launcher calls this)
+# No Python? Set TILION_LICENSE_KEY=<jwt>, or drop your key at ~/.tilion/license.jwt.
+set -e
+HERE="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)"
+PY="$(command -v python3 || command -v python || true)"
+if [ -z "$PY" ]; then
+  echo "tilion-activate needs python3 (not found). Alternatives:" >&2
+  echo "  export TILION_LICENSE_KEY=<jwt>    # CI / servers / agents" >&2
+  echo "  mkdir -p ~/.tilion && echo <jwt> > ~/.tilion/license.jwt" >&2
+  exit 1
+fi
+# `tilion-activate <flags>` behaves like `tilion activate <flags>` (prepend the subcommand).
+case "${1:-}" in activate|license) : ;; *) set -- activate "$@" ;; esac
+exec "$PY" "$HERE/tilion_activate.py" "$@"

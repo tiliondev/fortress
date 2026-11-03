@@ -344,6 +344,9 @@ curl -Ls $BASE/SHA256SUMS | sha256sum -c --ignore-missing     # -> OK
 docker inspect --format '{{index .RepoDigests 0}}' tilion/fortress:153.0.8010.36
 ```
 
+The [153.0.8010.68 candidate release record](releases/v153.0.8010.68/README.md)
+contains the verified Linux and Windows archive identities and publication checks.
+
 ## Reference
 
 <details><summary><b>Troubleshooting</b></summary>

@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "validated_on": "2026-11-03",
+  "scope": "Native license-gate checks and packaged-runtime smoke tests on local HTML fixtures.",
+  "platforms": {
+    "linux-x64": {
+      "engine_sha256": "a26a17d4adec2f12441459dfac0a865de4fd476d6aea19f7f3dc4f24ca66b45b",
+      "archive_sha256": "14ec763d33801e4aaaa07b1a0fbfcf3de5157e237bbac145111ae687fdccc1a5",
+      "native_license_checks": {
+        "missing_key": "passed: v1 fallback and one notice",
+        "invalid_key": "passed: v1 fallback and one notice",
+        "valid_file": "passed: v3 override active and no fallback notice",
+        "valid_environment": "passed: v3 override active and no fallback notice"
+      },
+      "packaged_runtime": "passed: all four license cases repeated after archive extraction",
+      "semantic_smoke": ["canvas pixel roundtrip", "audio buffer copy", "native receiver rejection", "WebGL clear/readback"],
+      "sandbox_disabled_for_test": false,
+      "temporary_test_key_removed": true
+    },
+    "win-x64": {
+      "engine_sha256": "8665ea8e43591bbec30ae73e57c8f2a5ac8f316a4b9dcae98d8d2f10974e5aca",
+      "archive_sha256": "e9a5d096a5be317f0ea88c93fae33b48b4514d3670c8facdfad9249832e710a5",
+      "native_license_checks": {
+        "missing_key": "passed: v1 fallback and one notice",
+        "invalid_key": "passed: v1 fallback and one notice",
+        "valid_file": "passed: v3 override active and no fallback notice"
+      },
+      "packaged_runtime": "passed: invalid and valid keys checked through the packaged launchers",
+      "launchers_checked": ["tillion.cmd", "tilion.cmd"]
+    }
+  },
+  "limits": [
+    "These checks do not establish anti-bot performance across websites.",
+    "A new native GPU regression suite and fresh-install timing comparison were not run for this release.",
+    "macOS is deferred and is not covered by this release record."
+  ]
+}

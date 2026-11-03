@@ -4,6 +4,9 @@
 # Env: TILION_NO_DEFAULTS=1 (skip default persona)  TILION_TZ / TILION_LANG (tweak)
 set -e
 HERE="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)"
+case "${1:-}" in
+  activate|license) exec bash "$HERE/tilion-activate" "$@" ;;
+esac
 CACHE="${XDG_CACHE_HOME:-$HOME/.cache}/tilion"; mkdir -p "$CACHE/fc"
 CONF="$CACHE/fonts.conf"
 sed -e "s|@FONTDIR@|$HERE/fonts|g" -e "s|@CACHEDIR@|$CACHE/fc|g" "$HERE/fonts/fonts.conf.template" > "$CONF"

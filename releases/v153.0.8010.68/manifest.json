@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "status": "candidate",
+  "tag": "v153.0.8010.68",
+  "title": "Fortress 153.0.8010.68",
+  "chromium_version": "153.0.8010.68",
+  "chromium_revision": "95854674670e4bf7c73482b38f8f27b6602165a0",
+  "engine_source_base": "9ec97cade0c8bcf6e81f1285fa5709c2e8871536",
+  "license": {
+    "bypass_enabled": false,
+    "verification": "offline Ed25519",
+    "production_key_id": "k1",
+    "missing_or_invalid_key": "v1 fallback with one notice",
+    "activation_client_sha256": "bde30ffe34896bbcf3939c805095036753ca34ece7efeea45900943d695d5b6f",
+    "personal_keys_bundled": false
+  },
+  "required_platforms": ["linux-x64", "win-x64"],
+  "deferred_platforms": ["mac-arm64"],
+  "assets": [
+    {
+      "platform": "linux-x64",
+      "name": "fortress-v153-linux-x64.tar.gz",
+      "bytes": 274436641,
+      "sha256": "14ec763d33801e4aaaa07b1a0fbfcf3de5157e237bbac145111ae687fdccc1a5",
+      "engine_sha256": "a26a17d4adec2f12441459dfac0a865de4fd476d6aea19f7f3dc4f24ca66b45b",
+      "engine_file": "fortress-v153/chrome"
+    },
+    {
+      "platform": "win-x64",
+      "name": "fortress-v153-win-x64.zip",
+      "bytes": 219358333,
+      "sha256": "e9a5d096a5be317f0ea88c93fae33b48b4514d3670c8facdfad9249832e710a5",
+      "engine_sha256": "8665ea8e43591bbec30ae73e57c8f2a5ac8f316a4b9dcae98d8d2f10974e5aca",
+      "engine_file": "fortress-v153-win-x64/chrome.dll"
+    }
+  ],
+  "validation_file": "VALIDATION.json",
+  "publication": {
+    "repository": "tiliondev/fortress",
+    "publish_after_review": true,
+    "preserve_current_latest": true
+  }
+}
