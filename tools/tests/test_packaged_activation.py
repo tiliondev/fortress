@@ -26,8 +26,10 @@ def bundle(tmp_path):
 def invoke(bundle, *arguments):
     directory, environment = bundle
     if sys.platform == "win32":
-        command = [os.environ.get("COMSPEC", "cmd.exe"), "/d", "/c",
-                   f'call "{directory / "tilion.cmd"}" ' + " ".join(arguments)]
+        # cmd.exe needs shell quoting; subprocess's list conversion adds
+        # C-runtime backslash escapes that cmd treats as part of the path.
+        comspec = os.environ.get("COMSPEC", "cmd.exe")
+        command = f'"{comspec}" /d /s /c ""{directory / "tilion.cmd"}" {" ".join(arguments)}"'
     else:
         command = ["bash", str(directory / "tilion"), *arguments]
     return subprocess.run(command, env=environment, text=True, encoding="utf-8",
